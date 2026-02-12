@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-BUILTS 99 - Official System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            background-color: #f8fafc; 
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            #view-editor { display: block !important; margin: 0 !important; padding: 0 !important; }
+            .document-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 10mm 15mm 40mm 15mm !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                position: relative !important;
+            }
+            #sig-container {
+                position: fixed !important;
+                bottom: 0mm !important;
+                left: 15mm !important;
+                right: 15mm !important;
+                height: 40mm !important;
+                background: white !important;
+                z-index: 999 !important;
+            }
+        }
+		
+        .document-sheet {
+            background-color: white;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            width: 210mm;
+            min-height: 297mm;
+            margin: 40px auto;
+            padding: 15mm;
+            position: relative;
+        }
+
+        .loading-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); display: none; align-items: center; justify-content: center; z-index: 9999;
+        }
+
+        .doc-table th { 
+            border-top: 2px solid #000; 
+            border-bottom: 2px solid #000; 
+            padding: 8px 4px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .doc-table td { 
+            padding: 6px 4px;
+            font-size: 13px;
+            vertical-align: top;
+        }
+
+        input, textarea, select {
+            border: 1px solid transparent;
+            border-radius: 4px;
+            padding: 2px 4px;
+            transition: all 0.2s;
+        }
+        input:hover, textarea:hover { border-color: #cbd5e1; background: #f1f5f9; }
+        input:focus, textarea:focus { border-color: #3b82f6; outline: none; background: white; }
+
+        .company-title { font-size: 18px; font-weight: 800; color: #000; }
+        .doc-header-title { font-size: 24px; font-weight: 900; }
+        
+        .sig-box {
+            border: 1px solid #cbd5e1;
+            padding: 10px;
+            height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            font-size: 11px;
+            position: relative;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-2px); }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .auto-grow {
+            min-height: 24px;
+            max-height: 160px;
+            overflow-y: hidden;
+            resize: none;
+            line-height: 1.4;
+            padding: 4px 6px;
+        }
+
+        .auto-grow:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading" class="loading-overlay flex-col gap-4">
+    <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+    <p class="font-bold">กำลังประมวลผลข้อมูล...</p>
+</div>
+
+<div id="app">
+    <nav class="no-print bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-4 cursor-pointer" onclick="showView('dashboard')">
+                <div class="bg-blue-600 p-1.5 rounded-lg">
+                    <i data-lucide="layout-grid" class="w-5 h-5"></i>
+                </div>
+                <span class="font-black text-lg tracking-wider">X-BUILTS 99</span>
+            </div>
+            
+            <div class="flex gap-1 overflow-x-auto no-scrollbar">
+                <button onclick="showView('dashboard')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">หน้าแรก</button>
+                <button onclick="switchDocType('quotation')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">ใบเสนอราคา</button>
+                <button onclick="switchDocType('invoice')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">ใบแจ้งหนี้</button>
+                <button onclick="switchDocType('billing')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">ใบวางบิล</button>
+                <button onclick="switchDocType('tax-invoice')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">ใบกำกับภาษี</button>
+                <button onclick="switchDocType('po')" class="px-4 py-2 rounded-lg text-xs font-bold bg-blue-900/40 hover:bg-blue-800 transition whitespace-nowrap text-blue-300">ใบสั่งซื้อ (PO)</button>
+                <button onclick="switchDocType('pr')" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-900/40 hover:bg-emerald-800 transition whitespace-nowrap text-emerald-300">ใบขอซื้อ (PR)</button>
+                <div class="flex items-center gap-3">
+                    <a href="https://costxbuilt99.xo.je/account.html" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm font-bold transition">
+                        <i data-lucide="calculator" class="w-4 h-4"></i> ทำบัญชี
+                    </a>
+                    <a href="https://costxbuilt99.xo.je/crm.html" target="_blank" rel="noopener noreferrer"
+                       class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition">
+                        <i data-lucide="users" class="w-4 h-4"></i> ข้อมูลลูกค้า
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="saveToSheets()" class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition">
+                    <i data-lucide="save" class="w-4 h-4"></i> บันทึก
+                </button>
+                <button onclick="printDocument()" class="bg-white/10 hover:bg-white/20 p-2 rounded-xl transition">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="view-dashboard" class="max-w-6xl mx-auto p-8 no-print">
+        <div class="flex justify-between items-end mb-8">
+            <div>
+                <h2 class="text-4xl font-black text-slate-800 tracking-tight">Dashboard</h2>
+                <p class="text-slate-500 font-medium">ภาพรวมเอกสารในระบบ Cloud</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="fetchFromSheets()" class="flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm font-bold text-sm hover:bg-slate-50 transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> อัปเดตข้อมูล
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="stat-card">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ยอดขายรวม</p>
+                <p id="stat-total-sales" class="text-2xl font-black text-slate-900">0.00</p>
+                <div class="mt-2 text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-full w-fit">Quotation / Invoice</div>
+            </div>
+            <div class="stat-card">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ยอดจัดซื้อรวม</p>
+                <p id="stat-total-purchase" class="text-2xl font-black text-emerald-600">0.00</p>
+                <div class="mt-2 text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-full w-fit">PO / PR</div>
+            </div>
+            <div class="stat-card">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">เอกสารทั้งหมด</p>
+                <p id="stat-count-all" class="text-2xl font-black text-slate-900">0</p>
+                <p class="text-[10px] text-slate-400 mt-2">ฉบับ</p>
+            </div>
+            <div class="stat-card border-blue-200 bg-blue-50/30">
+                <p class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-1">รอดำเนินการ</p>
+                <p id="stat-count-pending" class="text-2xl font-black text-blue-700">0</p>
+                <p class="text-[10px] text-blue-400 mt-2">เอกสารล่าสุด 7 วัน</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-black text-slate-800">รายการเอกสารล่าสุด</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <tr>
+                            <th class="p-4 pl-8">วันที่</th>
+                            <th class="p-4">ประเภท</th>
+                            <th class="p-4">เลขที่เอกสาร</th>
+                            <th class="p-4">ลูกค้า / ผู้ขาย</th>
+                            <th class="p-4 text-right pr-8">จำนวนเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashboard-list" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mt-10">
+            <h3 class="font-black text-slate-800 mb-4">สรุปแยกตามประเภทเอกสาร</h3>
+            <div id="doc-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+        </div>
+    </div>
+
+    <div id="view-editor" class="hidden">
+        <div class="document-sheet">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex gap-4">
+                    <img src="https://lh3.googleusercontent.com/d/1R7Up6RYuF5FQhtnoR2xm6bm3FKYfM3Ij" class="w-20 h-20 object-contain" alt="Logo">
+                    <div>
+                        <h1 class="company-title">บริษัท เอกซ์ บิ้ลท์ส์ เก้าเก้า จำกัด (สำนักงานใหญ่)</h1>
+                        <h2 class="text-sm font-bold mb-1 uppercase tracking-tighter text-slate-800">X BUILTS 99 CO., LTD.</h2>
+                        <p class="text-[11px] leading-tight text-slate-600">
+                            40 หมู่ 6 ต.ขัวเรียง อ.ชุมแพ จ.ขอนแก่น 40130<br>
+                            เบอร์โทร: 099 359 5269 | อีเมล: xbuilts99@xbuilts99.com<br>
+                            หมายเลขประจำตัวผู้เสียภาษี: 0205567029967
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right border-l-4 border-slate-900 pl-6 py-1">
+                    <h2 id="doc-title" class="doc-header-title text-slate-900">ใบเสนอราคา</h2>
+                    <p id="doc-sub-title" class="text-sm font-bold text-slate-500 tracking-widest uppercase">Quotation</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-12 border-t-2 border-slate-900 mt-4">
+                <div class="col-span-8 border-r-2 border-slate-900 p-3 pl-0">
+                    <div class="flex gap-2 mb-2">
+                        <span id="label-entity" class="font-bold text-xs whitespace-nowrap">นามลูกค้า:</span>
+                        <div class="relative w-full">
+    <input type="text" 
+        id="inp-customer-name" 
+        oninput="searchCustomer(this.value)"
+        autocomplete="off"
+        class="flex-1 text-sm font-bold border-b border-slate-200 w-full" 
+        placeholder="พิมพ์ค้นหาชื่อลูกค้า...">
+
+    <div id="customer-search-list" 
+        class="absolute z-50 bg-white border border-slate-200 w-full text-xs hidden max-h-48 overflow-y-auto shadow-lg rounded-md">
+    </div>
+</div>
+                    </div>
+                    <div class="flex gap-2 mb-2">
+                        <span class="font-bold text-xs whitespace-nowrap">ที่อยู่:</span>
+                        <textarea id="inp-customer-address" class="flex-1 text-xs border-b border-slate-200 leading-tight" rows="2" placeholder="เลขที่, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
+                    </div>
+                    <div class="flex gap-4">
+                        <div class="flex gap-2 items-center">
+                            <span class="font-bold text-xs">เลขผู้เสียภาษี:</span>
+                            <input type="text" id="inp-customer-taxid" class="text-xs border-b border-slate-200 w-32" placeholder="Tax ID">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-4 p-3 pr-0 space-y-1.5">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs">เลขที่ / No.</span>
+                        <input type="text" id="inp-doc-id" class="w-32 text-sm font-bold text-right border-b border-slate-200">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs">วันที่ / Date</span>
+                        <span id="doc-date-text" class="text-xs font-bold text-slate-700 cursor-pointer" onclick="editDocDate()">-</span>
+                        <input type="date" id="inp-doc-date" class="hidden" onchange="updateDocDateText()">
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-xs">อ้างถึง / Ref.</span>
+                        <input type="text" id="inp-doc-ref" class="w-32 text-xs text-right border-b border-slate-200">
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <table class="w-full doc-table">
+                    <thead>
+                        <tr>
+                            <th class="w-12 text-center">ลำดับ</th>
+                            <th class="text-left">รายการ / Description</th>
+                            <th class="w-16 text-center">จำนวน</th>
+                            <th class="w-16 text-center">หน่วย</th>
+                            <th class="w-24 text-right">ราคา/หน่วย</th>
+                            <th class="w-28 text-right">จำนวนเงิน</th>
+                        </tr>
+                    </thead>
+                    <tbody id="item-body"></tbody>
+                </table>
+                <button onclick="addItem()" class="no-print mt-2 text-blue-600 text-xs font-bold flex items-center gap-1 hover:text-blue-700 transition">
+                    <i data-lucide="plus-circle" class="w-3 h-3"></i> เพิ่มรายการสินค้าหรือบริการ
+                </button>
+            </div>
+
+            <div class="mt-6 grid grid-cols-12 gap-4">
+                <div class="col-span-7">
+                    <div class="p-3 bg-slate-50 border rounded-xl h-full relative">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">หมายเหตุ / Note</p>
+                        <textarea id="inp-notes" class="w-full bg-transparent text-xs leading-relaxed border-none focus:ring-0" rows="5"></textarea>
+                    </div>
+                </div>
+                <div class="col-span-5">
+                    <div class="space-y-1">
+                        <div class="flex justify-between text-xs px-2">
+                            <span class="text-slate-500">รวมเงิน / Sub Total</span>
+                            <span id="sum-sub" class="font-bold text-slate-900">0.00</span>
+                        </div>
+                        <div class="flex justify-between text-xs px-2 items-center">
+                            <div class="flex items-center gap-1">
+                                <span class="text-slate-500">ภาษีมูลค่าเพิ่ม / VAT 7%</span>
+                                <input type="checkbox" id="inp-has-vat" checked onchange="calculate()" class="no-print">
+                            </div>
+                            <span id="sum-vat" class="font-bold text-slate-900">0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-slate-900 text-white rounded-xl mt-3 shadow-lg">
+                            <div class="flex flex-col">
+                                <span class="text-[8px] uppercase opacity-60 tracking-widest">ยอดรวมทั้งสิ้น / Grand Total</span>
+                                <span id="sum-text" class="text-[10px] font-bold text-blue-300 leading-tight">(ศูนย์บาทถ้วน)</span>
+                            </div>
+                            <span id="sum-grand" class="text-2xl font-black">0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sig-container" class="mt-10 grid grid-cols-3 gap-2"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ-ombgXeE8JA61HII2z1JDSiV9egtCb4T-ewD23TyUceGoe2IKaAQAuFZvcQgAt2LXQ/exec";
+    
+    let currentDocType = 'quotation';
+    let items = [{ desc: '', qty: 1, unit: 'งาน', price: 0 }];
+    let docList = [];
+    let customerList = [];
+
+    const docConfig = {
+        quotation: { title: 'ใบเสนอราคา', sub: 'Quotation', prefix: 'QUO-X', entity: 'นามลูกค้า' },
+        invoice: { title: 'ใบแจ้งหนี้', sub: 'Invoice', prefix: 'INV-X', entity: 'นามลูกค้า' },
+        'tax-invoice': { title: 'ใบเสร็จรับเงิน/ใบกำกับภาษี', sub: 'Receipt/Tax Invoice', prefix: 'REC-X', entity: 'นามลูกค้า' },
+        po: { title: 'ใบสั่งซื้อ', sub: 'Purchase Order', prefix: 'PO-X', entity: 'นามผู้ขาย' },
+        pr: { title: 'ใบขอซื้อ', sub: 'Purchase Requisition', prefix: 'PR-X', entity: 'แผนก/ผู้ขอซื้อ' },
+        billing: { title: 'ใบวางบิล', sub: 'Billing Note', prefix: 'BILL-X', entity: 'นามลูกค้า' },
+    };
+
+    window.onload = () => {
+        lucide.createIcons();
+        showView('dashboard');
+        fetchFromSheets();
+        fetchCustomers();
+    };
+
+    function formatThaiDateCE(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function updateDocDateText() {
+        const inp = document.getElementById('inp-doc-date');
+        const text = document.getElementById('doc-date-text');
+        text.innerText = formatThaiDateCE(inp.value);
+        inp.classList.add('hidden');
+    }
+
+    function editDocDate() {
+        const inp = document.getElementById('inp-doc-date');
+        inp.classList.remove('hidden');
+        inp.focus();
+        inp.showPicker?.();
+    }
+
+    function renderDocSummary() {
+        const container = document.getElementById('doc-summary');
+        if (!container) return;
+        const map = {};
+        docList.forEach(d => {
+            if (!map[d.type]) map[d.type] = { count: 0, total: 0 };
+            map[d.type].count += 1;
+            map[d.type].total += parseFloat(d.total || 0);
+        });
+        container.innerHTML = Object.keys(map).map(type => {
+            const labelMap = {
+                quotation: 'ใบเสนอราคา',
+                invoice: 'ใบแจ้งหนี้',
+                billing: 'ใบวางบิล',
+                'tax-invoice': 'ใบกำกับภาษี',
+                po: 'ใบสั่งซื้อ (PO)',
+                pr: 'ใบขอซื้อ (PR)'
+            };
+            return `
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <p class="text-xs font-bold text-slate-400 mb-1">${labelMap[type] || type}</p>
+                <p class="text-2xl font-black text-slate-900">${map[type].total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p class="text-[11px] text-slate-500 mt-1">${map[type].count} เอกสาร</p>
+            </div>`;
+        }).join('');
+    }
+
+    function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+
+    function renderItems() {
+        const tbody = document.getElementById('item-body');
+        tbody.innerHTML = '';
+        items.forEach((item, i) => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-slate-50 align-top';
+            tr.innerHTML = `
+                <td class="text-center text-slate-300 pt-3 align-top">${i+1}</td>
+                <td class="py-1">
+                    <textarea 
+                        oninput="updateItem(${i}, 'desc', this.value); autoResizeTextarea(this)" 
+                        class="auto-grow w-full text-xs bg-transparent border-none"
+                        rows="1"
+                        placeholder="กรอกรายการ...">${item.desc || ''}</textarea>
+                </td>
+                <td class="py-1"><input type="number" step="any" oninput="updateItem(${i}, 'qty', this.value)" value="${item.qty}" class="w-full text-center bg-transparent"></td>
+                <td class="py-1"><input type="text" oninput="updateItem(${i}, 'unit', this.value)" value="${item.unit}" class="w-full text-center bg-transparent text-slate-400"></td>
+                <td class="py-1"><input type="number" step="any" oninput="updateItem(${i}, 'price', this.value)" value="${item.price}" class="w-full text-right font-bold bg-transparent"></td>
+                <td class="text-right font-bold pt-3 pr-2 align-top">${(item.qty * item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td class="no-print pt-3 text-center align-top">
+                    <button onclick="removeItem(${i})" class="text-slate-200 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        document.querySelectorAll('.auto-grow').forEach(ta => autoResizeTextarea(ta));
+        calculate();
+        lucide.createIcons();
+    }
+
+    function showView(v) {
+        document.getElementById('view-dashboard').classList.toggle('hidden', v !== 'dashboard');
+        document.getElementById('view-editor').classList.toggle('hidden', v !== 'editor');
+        if (v === 'dashboard') updateStats();
+    }
+
+    function switchDocType(type) {
+        currentDocType = type;
+        const config = docConfig[type];
+        document.getElementById('doc-title').innerText = config.title;
+        document.getElementById('doc-sub-title').innerText = config.sub;
+        document.getElementById('label-entity').innerText = config.entity + ':';
+        const yr = (new Date().getFullYear() ).toString().slice(-2);
+        const mo = (new Date().getMonth() + 1).toString().padStart(2, '0');
+        document.getElementById('inp-doc-id').value = `${config.prefix}${yr}${mo}001`;
+        document.getElementById('inp-doc-date').valueAsDate = new Date();
+        updateDocDateText();
+        items = [{ desc: '', qty: 1, unit: 'งาน', price: 0 }];
+        renderItems();
+        renderSignatures();
+        showView('editor');
+    }
+
+    function renderSignatures() {
+        const container = document.getElementById('sig-container');
+        let sigs = [];
+        if (currentDocType === 'invoice') sigs = ['ผู้จัดทำ', 'ผู้ตรวจสอบ', 'ผู้รับวางบิล'];
+        else if (currentDocType === 'billing') sigs = ['ผู้จัดทำ', 'ผู้รับวางบิล', 'ผู้รับเอกสาร'];
+        else if (currentDocType === 'tax-invoice') sigs = ['ผู้รับเงิน', 'ผู้ตรวจสอบ', 'ผู้จ่ายเงิน'];
+        else sigs = ['ผู้จัดทำ', 'ผู้ตรวจสอบ', 'ผู้อนุมัติ'];
+        container.innerHTML = sigs.map(label => `
+            <div class="sig-box">
+                <p class="mb-5 text-slate-300">..................................................</p>
+                <p class="font-bold text-[10px] uppercase text-slate-600">${label}</p>
+                <p class="text-[9px] text-slate-400 mt-1">วันที่ ........./........./.........</p>
+            </div>
+        `).join('');
+    }
+
+    function addItem() {
+        items.push({ desc: '', qty: 1, unit: 'งาน', price: 0 });
+        renderItems();
+    }
+
+    function removeItem(idx) {
+        if (items.length > 1) {
+            items.splice(idx, 1);
+            renderItems();
+        }
+    }
+
+    function updateItem(i, field, val) {
+        items[i][field] = (field === 'qty' || field === 'price') ? parseFloat(val) || 0 : val;
+        calculate();
+    }
+
+    function calculate() {
+        const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
+        const hasVat = document.getElementById('inp-has-vat').checked;
+        const vat = hasVat ? sub * 0.07 : 0;
+        const total = sub + vat;
+        document.getElementById('sum-sub').innerText = sub.toLocaleString(undefined, {minimumFractionDigits:2});
+        document.getElementById('sum-vat').innerText = vat.toLocaleString(undefined, {minimumFractionDigits:2});
+        document.getElementById('sum-grand').innerText = total.toLocaleString(undefined, {minimumFractionDigits:2});
+        document.getElementById('sum-text').innerText = `(${thaiBaht(total)})`;
+    }
+
+    function updateStats() {
+        const salesTypes = ['quotation', 'invoice', 'billing', 'tax-invoice'];
+        const purchaseTypes = ['po', 'pr'];
+        const totalSales = docList.filter(d => salesTypes.includes(d.type)).reduce((s, d) => s + parseFloat(d.total || 0), 0);
+        const totalPurchase = docList.filter(d => purchaseTypes.includes(d.type)).reduce((s, d) => s + parseFloat(d.total || 0), 0);
+        document.getElementById('stat-total-sales').innerText = totalSales.toLocaleString(undefined, {minimumFractionDigits:2});
+        document.getElementById('stat-total-purchase').innerText = totalPurchase.toLocaleString(undefined, {minimumFractionDigits:2});
+        document.getElementById('stat-count-all').innerText = docList.length;
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        document.getElementById('stat-count-pending').innerText = docList.filter(d => new Date(d.date) >= sevenDaysAgo).length;
+    }
+
+    async function saveToSheets() {
+        const overlay = document.getElementById('loading');
+        overlay.style.display = 'flex';
+        const data = {
+            id: document.getElementById('inp-doc-id').value,
+            date: document.getElementById('inp-doc-date').value,
+            type: currentDocType,
+            customer: document.getElementById('inp-customer-name').value,
+            customer_address: document.getElementById('inp-customer-address').value,
+            customer_taxid: document.getElementById('inp-customer-taxid').value,
+            project: document.getElementById('inp-doc-ref').value,
+            total: parseFloat(document.getElementById('sum-grand').innerText.replace(/,/g, '')),
+            items: JSON.stringify(items),
+            notes: document.getElementById('inp-notes').value
+        };
+        try {
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', data }) });
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                showView('dashboard');
+                fetchFromSheets();
+            }, 1000);
+        } catch (e) {
+            overlay.style.display = 'none';
+            alert('Error saving data');
+        }
+    }
+
+    async function fetchFromSheets() {
+        const list = document.getElementById('dashboard-list');
+        list.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-400">กำลังเชื่อมต่อ...</td></tr>';
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=get`);
+            docList = await res.json();
+            list.innerHTML = '';
+            docList.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(doc => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-blue-50/30 transition cursor-pointer';
+                tr.onclick = () => editDoc(doc.id);
+                const color = ['po','pr'].includes(doc.type) ? 'emerald' : 'blue';
+                tr.innerHTML = `
+                    <td class="p-4 pl-8 text-xs text-slate-500">${formatThaiDateCE(doc.date)}</td>
+                    <td class="p-4"><span class="px-2 py-0.5 rounded text-[9px] font-black uppercase bg-${color}-100 text-${color}-600">${doc.type}</span></td>
+                    <td class="p-4 font-bold text-slate-900">${doc.id}</td>
+                    <td class="p-4 text-slate-600 text-sm truncate max-w-[220px]">${doc.customer || '-'}</td>
+                    <td class="p-4 pr-8 text-right font-black">${parseFloat(doc.total).toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                `;
+                list.appendChild(tr);
+            });
+            updateStats();
+            renderDocSummary();
+        } catch(e) {
+            list.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-red-400">Connection Error</td></tr>';
+        }
+    }
+
+    async function fetchCustomers() {
+        try {
+            const res = await fetch(`${SCRIPT_URL}?action=getCustomers`);
+            customerList = await res.json();
+            const old = document.getElementById("customer-datalist");
+            if (old) old.remove();
+            const datalist = document.createElement("datalist");
+            datalist.id = "customer-datalist";
+            customerList.forEach(c => {
+                const opt = document.createElement("option");
+                opt.value = c.name;
+                datalist.appendChild(opt);
+            });
+            document.body.appendChild(datalist);
+            document.getElementById("inp-customer-name").setAttribute("list", "customer-datalist");
+        } catch (err) {
+            console.error("โหลดข้อมูลลูกค้าไม่สำเร็จ", err);
+        }
+    }
+
+    function editDoc(id) {
+        const doc = docList.find(d => d.id === id);
+        if (!doc) return;
+        switchDocType(doc.type);
+        document.getElementById('inp-doc-id').value = doc.id;
+        const dateInput = document.getElementById('inp-doc-date');
+        const dateText = document.getElementById('doc-date-text');
+        if (doc.date) {
+            dateInput.value = doc.date;
+            dateText.innerText = formatThaiDateCE(doc.date);
+        }
+        document.getElementById('inp-customer-name').value = doc.customer || '';
+        document.getElementById('inp-customer-address').value = doc.customer_address || '';
+        document.getElementById('inp-customer-taxid').value = doc.customer_taxid || '';
+        document.getElementById('inp-doc-ref').value = doc.project || '';
+        document.getElementById('inp-notes').value = doc.notes || '';
+        try { items = JSON.parse(doc.items || '[]'); } catch(e) { items = []; }
+        renderItems();
+        showView('editor');
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const nameInput = document.getElementById("inp-customer-name");
+        if (nameInput) {
+            nameInput.addEventListener("change", function () {
+                const selected = this.value;
+                const found = customerList.find(c => c.name === selected);
+                if (found) {
+                    document.getElementById("inp-customer-address").value = found.address || '';
+                    document.getElementById("inp-customer-taxid").value = found.taxid || '';
+                }
+            });
+        }
+    });
+
+    function thaiBaht(amount) {
+        if (amount === 0) return "ศูนย์บาทถ้วน";
+        const numbers = ["ศูนย์", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า"];
+        const units = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
+        let [intPart, decPart] = amount.toFixed(2).split(".");
+        let text = "";
+        const convert = (numStr) => {
+            let res = "";
+            let n = numStr.length;
+            for (let i = 0; i < n; i++) {
+                let digit = parseInt(numStr[i]);
+                if (digit !== 0) {
+                    if (i === n - 1 && digit === 1 && n > 1) res += "เอ็ด";
+                    else if (i === n - 2 && digit === 2) res += "ยี่สิบ";
+                    else if (i === n - 2 && digit === 1) res += "สิบ";
+                    else res += numbers[digit] + units[n - 1 - i];
+                }
+            }
+            return res;
+        };
+        let intNum = parseInt(intPart);
+        if (intNum >= 1000000) {
+            let millions = Math.floor(intNum / 1000000);
+            text += convert(millions.toString()) + "ล้าน";
+            intPart = (intNum % 1000000).toString().padStart(6, '0');
+        }
+        text += convert(intPart) + "บาท";
+        if (parseInt(decPart) === 0) text += "ถ้วน";
+        else text += convert(decPart) + "สตางค์";
+        return text;
+    }
+
+    function printDocument() {
+        try {
+            window.print();
+        } catch (err) {
+            alert("ไม่สามารถเปิดหน้าพิมพ์ได้ กรุณาลองกด Ctrl + P แทน");
+        }
+    }
+	function searchCustomer(keyword) {
+    const listBox = document.getElementById("customer-search-list");
+    listBox.innerHTML = "";
+
+    if (!keyword) {
+        listBox.classList.add("hidden");
+        return;
+    }
+
+    const filtered = customerList.filter(c =>
+        c.name.toLowerCase().includes(keyword.toLowerCase())
+    );
+
+    if (filtered.length === 0) {
+        listBox.classList.add("hidden");
+        return;
+    }
+
+    filtered.forEach(c => {
+        const item = document.createElement("div");
+        item.className = "px-3 py-2 hover:bg-blue-50 cursor-pointer";
+        item.innerText = c.name;
+
+        item.onclick = () => {
+            document.getElementById("inp-customer-name").value = c.name;
+            document.getElementById("inp-customer-address").value = c.address || '';
+            document.getElementById("inp-customer-taxid").value = c.taxid || '';
+            listBox.classList.add("hidden");
+        };
+
+        listBox.appendChild(item);
+    });
+
+    listBox.classList.remove("hidden");
+	}document.addEventListener("click", function(e) {
+    if (!e.target.closest("#inp-customer-name")) {
+        document.getElementById("customer-search-list").classList.add("hidden");
+    }
+	  const summaryBox = document.querySelector(".space-y-1");
+
+    if (summaryBox && !document.getElementById("wht-row")) {
+
+        const whtRow = document.createElement("div");
+        whtRow.id = "wht-row";
+        whtRow.className = "flex justify-between text-xs px-2 items-center hidden";
+        whtRow.innerHTML = `
+            <div class="flex items-center gap-1">
+                <span class="text-slate-500">หัก ณ ที่จ่าย / WHT</span>
+                <input type="number" id="inp-wht-percent" value="3"
+                    class="w-12 text-center border-b border-slate-300 no-print">
+                <span class="text-slate-500">%</span>
+            </div>
+            <span id="sum-wht" class="font-bold text-red-600">0.00</span>
+        `;
+
+        const netRow = document.createElement("div");
+        netRow.id = "net-total-row";
+        netRow.className = "flex justify-between text-xs px-2 hidden";
+        netRow.innerHTML = `
+            <span class="text-slate-500 font-bold">ยอดสุทธิหลังหัก WHT</span>
+            <span id="sum-net" class="font-bold text-slate-900">0.00</span>
+        `;
+
+        summaryBox.insertBefore(whtRow, summaryBox.querySelector(".bg-slate-900"));
+        summaryBox.insertBefore(netRow, summaryBox.querySelector(".bg-slate-900"));
+    }
+
+    // ===== 2. Hook switchDocType เพื่อแสดงเฉพาะ tax-invoice =====
+    const originalSwitch = window.switchDocType;
+
+    window.switchDocType = function(type) {
+        originalSwitch(type);
+
+        const whtRow = document.getElementById("wht-row");
+        const netRow = document.getElementById("net-total-row");
+
+        if (!whtRow) return;
+
+        if (type === "tax-invoice") {
+            whtRow.classList.remove("hidden");
+            netRow.classList.remove("hidden");
+        } else {
+            whtRow.classList.add("hidden");
+            netRow.classList.add("hidden");
+        }
+    };
+	
+
+    // ===== 3. Hook calculate() เดิมแบบไม่ทับระบบเก่า =====
+    const originalCalculate = window.calculate;
+
+    window.calculate = function() {
+
+        originalCalculate(); // ให้ระบบเดิมทำงานก่อน
+
+        if (currentDocType !== "tax-invoice") return;
+
+        const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
+        const hasVat = document.getElementById('inp-has-vat').checked;
+        const vat = hasVat ? sub * 0.07 : 0;
+        const grand = sub + vat;
+
+        const percent = parseFloat(document.getElementById("inp-wht-percent").value) || 0;
+
+        // WHT คิดจากยอดก่อน VAT
+        const wht = sub * (percent / 100);
+        const net = grand - wht;
+
+        const whtEl = document.getElementById("sum-wht");
+        const netEl = document.getElementById("sum-net");
+
+        if (whtEl) whtEl.innerText = wht.toLocaleString(undefined,{minimumFractionDigits:2});
+        if (netEl) netEl.innerText = net.toLocaleString(undefined,{minimumFractionDigits:2});
+    };
+
+    // ===== 4. Trigger คำนวณเมื่อเปลี่ยน % =====
+    document.addEventListener("input", function(e){
+        if (e.target && e.target.id === "inp-wht-percent") {
+            calculate();
+        }
+    });
+
+});
+document.addEventListener("DOMContentLoaded", function () {
+
+    const originalCalculate = window.calculate;
+
+    window.calculate = function () {
+
+        // ให้ระบบเดิมคำนวณก่อน
+        originalCalculate();
+
+        if (currentDocType !== "tax-invoice") return;
+
+        const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
+        const hasVat = document.getElementById('inp-has-vat').checked;
+        const vat = hasVat ? sub * 0.07 : 0;
+        const grand = sub + vat;
+
+        const percent = parseFloat(document.getElementById("inp-wht-percent")?.value) || 0;
+
+        // WHT คิดจากยอดก่อน VAT
+        const wht = sub * (percent / 100);
+        const net = grand - wht;
+
+        // อัปเดตแสดง WHT
+        const whtEl = document.getElementById("sum-wht");
+        if (whtEl) {
+            whtEl.innerText = wht.toLocaleString(undefined,{minimumFractionDigits:2});
+        }
+
+        // ⭐ ทำให้ยอดสุทธิเป็นยอดรวมสุดท้าย
+        const grandEl = document.getElementById("sum-grand");
+        const textEl = document.getElementById("sum-text");
+
+        if (grandEl) {
+            grandEl.innerText = net.toLocaleString(undefined,{minimumFractionDigits:2});
+        }
+
+        if (textEl) {
+            textEl.innerText = `(${thaiBaht(net)})`;
+        }
+
+    };
+
+});
+
+</script>
+</body>
+</html>
