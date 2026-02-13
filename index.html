@@ -22,28 +22,39 @@
         }
 
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; margin: 0 !important; padding: 0 !important; }
-            #view-editor { display: block !important; margin: 0 !important; padding: 0 !important; }
-            .document-sheet {
-                box-shadow: none !important;
-                border: none !important;
-                margin: 0 !important;
-                padding: 10mm 15mm 40mm 15mm !important;
-                width: 210mm !important;
-                min-height: 297mm !important;
-                position: relative !important;
-            }
-            #sig-container {
-                position: fixed !important;
-                bottom: 0mm !important;
-                left: 15mm !important;
-                right: 15mm !important;
-                height: 40mm !important;
-                background: white !important;
-                z-index: 999 !important;
-            }
-        }
+    .no-print { 
+        display: none !important; 
+    }
+    body { 
+        background: white !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+    #view-editor { 
+        display: block !important; 
+        margin: 0 !important; 
+        padding: 0 !important; 
+    }
+    .document-sheet {
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 10mm 15mm 40mm 15mm !important;  /* เว้นล่างเยอะหน่อยเพื่อลงนาม */
+        width: 210mm !important;
+        min-height: 297mm !important;
+        position: relative !important;
+    }
+    /* ล็อกส่วนลงนามไว้ล่างสุด */
+    #sig-container {
+        position: fixed !important;
+        bottom: 0mm !important;
+        left: 15mm !important;
+        right: 15mm !important;
+        height: 40mm !important;
+        background: white !important;
+        z-index: 999 !important;
+    }
+}
 		
         .document-sheet {
             background-color: white;
@@ -108,6 +119,18 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
 
+        .ai-btn {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            color: white;
+            transition: all 0.3s;
+        }
+        .ai-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Auto-resize textarea for description column */
         .auto-grow {
             min-height: 24px;
             max-height: 160px;
@@ -124,27 +147,6 @@
     </style>
 </head>
 <body>
-<!-- Login Screen -->
-    <div id="loginScreen" class="fixed inset-0 bg-slate-100 flex items-center justify-center z-[100]">
-        <div class="card p-8 max-w-sm w-full mx-4 shadow-2xl border-t-4 border-blue-600">
-            <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-slate-800">X BUILTS 99</h1>
-                <p class="text-slate-500 text-sm mt-2">กรุณาเข้าสู่ระบบเพื่อจัดการบัญชี</p>
-            </div>
-            <form id="loginForm" class="space-y-5">
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Username</label>
-                    <input type="text" id="username" class="w-full border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required autocomplete="username">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Password</label>
-                    <input type="password" id="password" class="w-full border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required autocomplete="current-password">
-                </div>
-                <div id="loginError" class="hidden text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95">เข้าสู่ระบบ</button>
-            </form>
-        </div>
-    </div>
 
 <div id="loading" class="loading-overlay flex-col gap-4">
     <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
@@ -169,16 +171,6 @@
                 <button onclick="switchDocType('tax-invoice')" class="px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-800 transition whitespace-nowrap">ใบกำกับภาษี</button>
                 <button onclick="switchDocType('po')" class="px-4 py-2 rounded-lg text-xs font-bold bg-blue-900/40 hover:bg-blue-800 transition whitespace-nowrap text-blue-300">ใบสั่งซื้อ (PO)</button>
                 <button onclick="switchDocType('pr')" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-900/40 hover:bg-emerald-800 transition whitespace-nowrap text-emerald-300">ใบขอซื้อ (PR)</button>
-                <div class="flex items-center gap-3">
-                    <a href="https://account.xbuilts99.com" target="_blank" rel="noopener noreferrer"
-                       class="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm font-bold transition">
-                        <i data-lucide="calculator" class="w-4 h-4"></i> ทำบัญชี
-                    </a>
-                    <a href="http://crm.xbuilts99.com" target="_blank" rel="noopener noreferrer"
-                       class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition">
-                        <i data-lucide="users" class="w-4 h-4"></i> ข้อมูลลูกค้า
-                    </a>
-                </div>
             </div>
 
             <div class="flex gap-3">
@@ -186,16 +178,9 @@
                     <i data-lucide="save" class="w-4 h-4"></i> บันทึก
                 </button>
                 <button onclick="printDocument()" class="bg-white/10 hover:bg-white/20 p-2 rounded-xl transition">
-                    <i data-lucide="printer" class="w-5 h-5"></i>
-                </button>
-				
+    <i data-lucide="printer" class="w-5 h-5"></i>
+</button>>
             </div>
-			</div>
-                <div class="flex gap-4">
-       
-                    <button onclick="logout()" class="text-xs bg-red-50 text-red-600 border border-red-100 px-4 py-1.5 rounded-lg hover:bg-red-100 transition">ออกจากระบบ</button>
-                </div>
-			
         </div>
     </nav>
 
@@ -206,10 +191,21 @@
                 <p class="text-slate-500 font-medium">ภาพรวมเอกสารในระบบ Cloud</p>
             </div>
             <div class="flex gap-2">
+                <button onclick="aiAnalyzeDashboard()" class="ai-btn flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i> วิเคราะห์ข้อมูล ✨
+                </button>
                 <button onclick="fetchFromSheets()" class="flex items-center gap-2 bg-white px-5 py-2.5 rounded-2xl border border-slate-200 shadow-sm font-bold text-sm hover:bg-slate-50 transition">
                     <i data-lucide="refresh-cw" class="w-4 h-4"></i> อัปเดตข้อมูล
                 </button>
             </div>
+        </div>
+
+        <div id="ai-insight-panel" class="hidden mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl text-indigo-900 text-sm leading-relaxed">
+            <div class="flex justify-between items-start mb-2">
+                <span class="font-bold flex items-center gap-2"><i data-lucide="bot" class="w-4 h-4"></i> ความเห็นจาก AI:</span>
+                <button onclick="this.parentElement.parentElement.classList.add('hidden')" class="text-indigo-400 hover:text-indigo-600"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="ai-insight-text"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
@@ -286,18 +282,7 @@
                 <div class="col-span-8 border-r-2 border-slate-900 p-3 pl-0">
                     <div class="flex gap-2 mb-2">
                         <span id="label-entity" class="font-bold text-xs whitespace-nowrap">นามลูกค้า:</span>
-                        <div class="relative w-full">
-    <input type="text" 
-        id="inp-customer-name" 
-        oninput="searchCustomer(this.value)"
-        autocomplete="off"
-        class="flex-1 text-sm font-bold border-b border-slate-200 w-full" 
-        placeholder="พิมพ์ค้นหาชื่อลูกค้า...">
-
-    <div id="customer-search-list" 
-        class="absolute z-50 bg-white border border-slate-200 w-full text-xs hidden max-h-48 overflow-y-auto shadow-lg rounded-md">
-    </div>
-</div>
+                        <input type="text" id="inp-customer-name" class="flex-1 text-sm font-bold border-b border-slate-200" placeholder="กรอกชื่อนิติบุคคล/บุคคล">
                     </div>
                     <div class="flex gap-2 mb-2">
                         <span class="font-bold text-xs whitespace-nowrap">ที่อยู่:</span>
@@ -328,6 +313,11 @@
             </div>
 
             <div class="mt-4">
+                <div class="no-print flex justify-end mb-2">
+                    <button onclick="aiGenerateItems()" class="ai-btn px-4 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> ร่างรายการโดย AI ✨
+                    </button>
+                </div>
                 <table class="w-full doc-table">
                     <thead>
                         <tr>
@@ -349,7 +339,10 @@
             <div class="mt-6 grid grid-cols-12 gap-4">
                 <div class="col-span-7">
                     <div class="p-3 bg-slate-50 border rounded-xl h-full relative">
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">หมายเหตุ / Note</p>
+                        <div class="flex justify-between items-center mb-1">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">หมายเหตุ / Note</p>
+                            <button onclick="aiEnhanceNotes()" class="no-print ai-btn px-2 py-0.5 rounded text-[9px] font-bold">✨ แต่งหมายเหตุ</button>
+                        </div>
                         <textarea id="inp-notes" class="w-full bg-transparent text-xs leading-relaxed border-none focus:ring-0" rows="5"></textarea>
                     </div>
                 </div>
@@ -383,49 +376,12 @@
 </div>
 
 <script>
- // --- Security (Direct Comparison for Preview Reliability) ---
-        // Username: xbuilts
-        // Password: Thoon5247%
-        const _U = "xbuilts";
-        const _P = "Thoon5247%";
-
-        const scriptURL = "https://script.google.com/macros/s/AKfycbxwNoDIQlJtyBm4Y8t_Ta7o7ncALFlPw61RFlEb6k8Sdsa1RM08Te4W8O1uPWnU5mrgXg/exec";
-        let allRawData = [];
-        let projects = JSON.parse(localStorage.getItem('xb_projects_v4') || '["โครงการ A", "โครงการ B"]');
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
-            
-            if (u === _U && p === _P) {
-                localStorage.setItem('xb_session', 'active');
-                initApp();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        });
-
-        function initApp() {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            updateProjectOptions();
-            fetchData();
-        }
-
-        function logout() {
-            localStorage.removeItem('xb_session');
-            location.reload();
-        }
-
-   
-
-   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ-ombgXeE8JA61HII2z1JDSiV9egtCb4T-ewD23TyUceGoe2IKaAQAuFZvcQgAt2LXQ/exec";
+    const apiKey = "AIzaSyBXPFFcDzfTxDW2BV1XsAXEiCf1BuGli6s"; // ใส่ Gemini API Key ของคุณที่นี่ (ถ้าใช้ AI features)
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIFY1SGocgEw271aJZ1UuauDAkWwmB0Xon7vmeUKwu7yYkSmK7RQv3DXPLtGzJ0aChKA/exec";
     
     let currentDocType = 'quotation';
     let items = [{ desc: '', qty: 1, unit: 'งาน', price: 0 }];
     let docList = [];
-    let customerList = [];
 
     const docConfig = {
         quotation: { title: 'ใบเสนอราคา', sub: 'Quotation', prefix: 'QUO-X', entity: 'นามลูกค้า' },
@@ -438,9 +394,8 @@
 
     window.onload = () => {
         lucide.createIcons();
-        showView('dashboard');
         fetchFromSheets();
-        fetchCustomers();
+        switchDocType('quotation');
     };
 
     function formatThaiDateCE(dateStr) {
@@ -491,6 +446,7 @@
         }).join('');
     }
 
+    // Auto-resize textarea
     function autoResizeTextarea(textarea) {
         textarea.style.height = 'auto';
         textarea.style.height = textarea.scrollHeight + 'px';
@@ -509,7 +465,7 @@
                         oninput="updateItem(${i}, 'desc', this.value); autoResizeTextarea(this)" 
                         class="auto-grow w-full text-xs bg-transparent border-none"
                         rows="1"
-                        placeholder="กรอกรายการ...">${item.desc || ''}</textarea>
+                        placeholder="เช่น งานติดตั้งระบบไฟฟ้าแรงต่ำ 3 เฟส 4 สาย ...">${item.desc || ''}</textarea>
                 </td>
                 <td class="py-1"><input type="number" step="any" oninput="updateItem(${i}, 'qty', this.value)" value="${item.qty}" class="w-full text-center bg-transparent"></td>
                 <td class="py-1"><input type="text" oninput="updateItem(${i}, 'unit', this.value)" value="${item.unit}" class="w-full text-center bg-transparent text-slate-400"></td>
@@ -521,6 +477,7 @@
             `;
             tbody.appendChild(tr);
         });
+
         document.querySelectorAll('.auto-grow').forEach(ta => autoResizeTextarea(ta));
         calculate();
         lucide.createIcons();
@@ -535,14 +492,17 @@
     function switchDocType(type) {
         currentDocType = type;
         const config = docConfig[type];
+        
         document.getElementById('doc-title').innerText = config.title;
         document.getElementById('doc-sub-title').innerText = config.sub;
         document.getElementById('label-entity').innerText = config.entity + ':';
-        const yr = (new Date().getFullYear() ).toString().slice(-2);
+        
+        const yr = (new Date().getFullYear() + 543).toString().slice(-2);
         const mo = (new Date().getMonth() + 1).toString().padStart(2, '0');
         document.getElementById('inp-doc-id').value = `${config.prefix}${yr}${mo}001`;
         document.getElementById('inp-doc-date').valueAsDate = new Date();
         updateDocDateText();
+
         items = [{ desc: '', qty: 1, unit: 'งาน', price: 0 }];
         renderItems();
         renderSignatures();
@@ -552,10 +512,12 @@
     function renderSignatures() {
         const container = document.getElementById('sig-container');
         let sigs = [];
+
         if (currentDocType === 'invoice') sigs = ['ผู้จัดทำ', 'ผู้ตรวจสอบ', 'ผู้รับวางบิล'];
         else if (currentDocType === 'billing') sigs = ['ผู้จัดทำ', 'ผู้รับวางบิล', 'ผู้รับเอกสาร'];
         else if (currentDocType === 'tax-invoice') sigs = ['ผู้รับเงิน', 'ผู้ตรวจสอบ', 'ผู้จ่ายเงิน'];
         else sigs = ['ผู้จัดทำ', 'ผู้ตรวจสอบ', 'ผู้อนุมัติ'];
+
         container.innerHTML = sigs.map(label => `
             <div class="sig-box">
                 <p class="mb-5 text-slate-300">..................................................</p>
@@ -587,10 +549,16 @@
         const hasVat = document.getElementById('inp-has-vat').checked;
         const vat = hasVat ? sub * 0.07 : 0;
         const total = sub + vat;
+
         document.getElementById('sum-sub').innerText = sub.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('sum-vat').innerText = vat.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('sum-grand').innerText = total.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('sum-text').innerText = `(${thaiBaht(total)})`;
+
+        const rows = document.getElementById('item-body').children;
+        items.forEach((x, i) => {
+            if (rows[i]) rows[i].cells[5].innerText = (x.qty * x.price).toLocaleString(undefined, {minimumFractionDigits:2});
+        });
     }
 
     function updateStats() {
@@ -598,9 +566,11 @@
         const purchaseTypes = ['po', 'pr'];
         const totalSales = docList.filter(d => salesTypes.includes(d.type)).reduce((s, d) => s + parseFloat(d.total || 0), 0);
         const totalPurchase = docList.filter(d => purchaseTypes.includes(d.type)).reduce((s, d) => s + parseFloat(d.total || 0), 0);
+        
         document.getElementById('stat-total-sales').innerText = totalSales.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('stat-total-purchase').innerText = totalPurchase.toLocaleString(undefined, {minimumFractionDigits:2});
         document.getElementById('stat-count-all').innerText = docList.length;
+        
         const sevenDaysAgo = new Date();
         sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
         document.getElementById('stat-count-pending').innerText = docList.filter(d => new Date(d.date) >= sevenDaysAgo).length;
@@ -609,20 +579,26 @@
     async function saveToSheets() {
         const overlay = document.getElementById('loading');
         overlay.style.display = 'flex';
+        
         const data = {
             id: document.getElementById('inp-doc-id').value,
             date: document.getElementById('inp-doc-date').value,
             type: currentDocType,
             customer: document.getElementById('inp-customer-name').value,
-            customer_address: document.getElementById('inp-customer-address').value,
+			customer_address: document.getElementById('inp-customer-address').value,
             customer_taxid: document.getElementById('inp-customer-taxid').value,
             project: document.getElementById('inp-doc-ref').value,
             total: parseFloat(document.getElementById('sum-grand').innerText.replace(/,/g, '')),
             items: JSON.stringify(items),
             notes: document.getElementById('inp-notes').value
         };
+
         try {
-            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ action: 'save', data }) });
+            await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: JSON.stringify({ action: 'save', data }) 
+            });
             setTimeout(() => {
                 overlay.style.display = 'none';
                 showView('dashboard');
@@ -637,10 +613,12 @@
     async function fetchFromSheets() {
         const list = document.getElementById('dashboard-list');
         list.innerHTML = '<tr><td colspan="5" class="p-12 text-center text-slate-400">กำลังเชื่อมต่อ...</td></tr>';
+
         try {
             const res = await fetch(`${SCRIPT_URL}?action=get`);
             docList = await res.json();
             list.innerHTML = '';
+            
             docList.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(doc => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-blue-50/30 transition cursor-pointer';
@@ -655,6 +633,7 @@
                 `;
                 list.appendChild(tr);
             });
+            
             updateStats();
             renderDocSummary();
         } catch(e) {
@@ -662,60 +641,40 @@
         }
     }
 
-    async function fetchCustomers() {
-        try {
-            const res = await fetch(`${SCRIPT_URL}?action=getCustomers`);
-            customerList = await res.json();
-            const old = document.getElementById("customer-datalist");
-            if (old) old.remove();
-            const datalist = document.createElement("datalist");
-            datalist.id = "customer-datalist";
-            customerList.forEach(c => {
-                const opt = document.createElement("option");
-                opt.value = c.name;
-                datalist.appendChild(opt);
-            });
-            document.body.appendChild(datalist);
-            document.getElementById("inp-customer-name").setAttribute("list", "customer-datalist");
-        } catch (err) {
-            console.error("โหลดข้อมูลลูกค้าไม่สำเร็จ", err);
-        }
-    }
-
     function editDoc(id) {
-        const doc = docList.find(d => d.id === id);
-        if (!doc) return;
-        switchDocType(doc.type);
-        document.getElementById('inp-doc-id').value = doc.id;
-        const dateInput = document.getElementById('inp-doc-date');
-        const dateText = document.getElementById('doc-date-text');
-        if (doc.date) {
-            dateInput.value = doc.date;
-            dateText.innerText = formatThaiDateCE(doc.date);
-        }
-        document.getElementById('inp-customer-name').value = doc.customer || '';
-        document.getElementById('inp-customer-address').value = doc.customer_address || '';
-        document.getElementById('inp-customer-taxid').value = doc.customer_taxid || '';
-        document.getElementById('inp-doc-ref').value = doc.project || '';
-        document.getElementById('inp-notes').value = doc.notes || '';
-        try { items = JSON.parse(doc.items || '[]'); } catch(e) { items = []; }
-        renderItems();
-        showView('editor');
+    const doc = docList.find(d => d.id === id);
+    if (!doc) return;
+    
+    switchDocType(doc.type);
+    
+    document.getElementById('inp-doc-id').value = doc.id;
+    
+    // ตั้งค่าวันที่ทั้ง input และ text โดยตรง
+    const dateInput = document.getElementById('inp-doc-date');
+    const dateText = document.getElementById('doc-date-text');
+    
+    if (doc.date) {
+        dateInput.value = doc.date;                   // ตั้งค่า input type="date"
+        dateText.innerText = formatThaiDateCE(doc.date); // ตั้งค่าแสดงผลทันที
+    } else {
+        dateInput.value = '';
+        dateText.innerText = '-';
     }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        const nameInput = document.getElementById("inp-customer-name");
-        if (nameInput) {
-            nameInput.addEventListener("change", function () {
-                const selected = this.value;
-                const found = customerList.find(c => c.name === selected);
-                if (found) {
-                    document.getElementById("inp-customer-address").value = found.address || '';
-                    document.getElementById("inp-customer-taxid").value = found.taxid || '';
-                }
-            });
-        }
-    });
+    
+    document.getElementById('inp-customer-name').value = doc.customer || '';
+    document.getElementById('inp-customer-address').value = doc.customer_address || '';
+    document.getElementById('inp-customer-taxid').value = doc.customer_taxid || '';
+    document.getElementById('inp-doc-ref').value = doc.project || '';
+    document.getElementById('inp-notes').value = doc.notes || '';
+    
+    try {
+        items = JSON.parse(doc.items || '[]');
+    } catch(e) {
+        items = [];
+    }
+    renderItems();
+    showView('editor');
+}
 
     function thaiBaht(amount) {
         if (amount === 0) return "ศูนย์บาทถ้วน";
@@ -723,6 +682,7 @@
         const units = ["", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน"];
         let [intPart, decPart] = amount.toFixed(2).split(".");
         let text = "";
+        
         const convert = (numStr) => {
             let res = "";
             let n = numStr.length;
@@ -737,6 +697,7 @@
             }
             return res;
         };
+
         let intNum = parseInt(intPart);
         if (intNum >= 1000000) {
             let millions = Math.floor(intNum / 1000000);
@@ -749,180 +710,128 @@
         return text;
     }
 
-    function printDocument() {
-        try {
-            window.print();
-        } catch (err) {
-            alert("ไม่สามารถเปิดหน้าพิมพ์ได้ กรุณาลองกด Ctrl + P แทน");
+    // ------------------ Gemini AI Functions ------------------
+    async function callGemini(prompt, systemPrompt = "", isJson = false) {
+        if (!apiKey) {
+            alert("ยังไม่ได้ตั้งค่า API Key สำหรับ Gemini");
+            return null;
         }
-    }
-	function searchCustomer(keyword) {
-    const listBox = document.getElementById("customer-search-list");
-    listBox.innerHTML = "";
-
-    if (!keyword) {
-        listBox.classList.add("hidden");
-        return;
-    }
-
-    const filtered = customerList.filter(c =>
-        c.name.toLowerCase().includes(keyword.toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-        listBox.classList.add("hidden");
-        return;
-    }
-
-    filtered.forEach(c => {
-        const item = document.createElement("div");
-        item.className = "px-3 py-2 hover:bg-blue-50 cursor-pointer";
-        item.innerText = c.name;
-
-        item.onclick = () => {
-            document.getElementById("inp-customer-name").value = c.name;
-            document.getElementById("inp-customer-address").value = c.address || '';
-            document.getElementById("inp-customer-taxid").value = c.taxid || '';
-            listBox.classList.add("hidden");
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: systemPrompt ? { parts: [{ text: systemPrompt }] } : undefined
         };
+        if (isJson) {
+            payload.generationConfig = { responseMimeType: "application/json" };
+        }
 
-        listBox.appendChild(item);
-    });
-
-    listBox.classList.remove("hidden");
-	}document.addEventListener("click", function(e) {
-    if (!e.target.closest("#inp-customer-name")) {
-        document.getElementById("customer-search-list").classList.add("hidden");
-    }
-	  const summaryBox = document.querySelector(".space-y-1");
-
-    if (summaryBox && !document.getElementById("wht-row")) {
-
-        const whtRow = document.createElement("div");
-        whtRow.id = "wht-row";
-        whtRow.className = "flex justify-between text-xs px-2 items-center hidden";
-        whtRow.innerHTML = `
-            <div class="flex items-center gap-1">
-                <span class="text-slate-500">หัก ณ ที่จ่าย / WHT</span>
-                <input type="number" id="inp-wht-percent" value="3"
-                    class="w-12 text-center border-b border-slate-300 no-print">
-                <span class="text-slate-500">%</span>
-            </div>
-            <span id="sum-wht" class="font-bold text-red-600">0.00</span>
-        `;
-
-        const netRow = document.createElement("div");
-        netRow.id = "net-total-row";
-        netRow.className = "flex justify-between text-xs px-2 hidden";
-        netRow.innerHTML = `
-            <span class="text-slate-500 font-bold">ยอดสุทธิหลังหัก WHT</span>
-            <span id="sum-net" class="font-bold text-slate-900">0.00</span>
-        `;
-
-        summaryBox.insertBefore(whtRow, summaryBox.querySelector(".bg-slate-900"));
-        summaryBox.insertBefore(netRow, summaryBox.querySelector(".bg-slate-900"));
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            return result.candidates?.[0]?.content?.parts?.[0]?.text;
+        } catch (err) {
+            console.error(err);
+            return null;
+        }
     }
 
-    // ===== 2. Hook switchDocType เพื่อแสดงเฉพาะ tax-invoice =====
-    const originalSwitch = window.switchDocType;
-
-    window.switchDocType = function(type) {
-        originalSwitch(type);
-
-        const whtRow = document.getElementById("wht-row");
-        const netRow = document.getElementById("net-total-row");
-
-        if (!whtRow) return;
-
-        if (type === "tax-invoice") {
-            whtRow.classList.remove("hidden");
-            netRow.classList.remove("hidden");
-        } else {
-            whtRow.classList.add("hidden");
-            netRow.classList.add("hidden");
+    async function aiGenerateItems() {
+        const ref = document.getElementById('inp-doc-ref').value.trim();
+        if (!ref) {
+            alert("กรุณาระบุ 'อ้างถึง / Ref.' ก่อนใช้ AI ร่างรายการ");
+            return;
         }
-    };
-	
+        
+        const overlay = document.getElementById('loading');
+        overlay.style.display = 'flex';
 
-    // ===== 3. Hook calculate() เดิมแบบไม่ทับระบบเก่า =====
-    const originalCalculate = window.calculate;
+        const systemPrompt = "คุณคือผู้ช่วยจัดการเอกสารจัดซื้อจัดจ้างสำหรับบริษัทรับเหมาก่อสร้าง ให้ข้อมูลเป็น JSON array ของ object ที่มีฟิลด์: desc (ภาษาไทย), qty (ตัวเลข), unit (ภาษาไทย), price (ตัวเลข)";
+        const prompt = `ร่างรายการสินค้า/บริการสำหรับโปรเจกต์: "${ref}" เอกสารประเภท ${currentDocType} ประมาณ 4-6 รายการที่เหมาะสม`;
 
-    window.calculate = function() {
-
-        originalCalculate(); // ให้ระบบเดิมทำงานก่อน
-
-        if (currentDocType !== "tax-invoice") return;
-
-        const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
-        const hasVat = document.getElementById('inp-has-vat').checked;
-        const vat = hasVat ? sub * 0.07 : 0;
-        const grand = sub + vat;
-
-        const percent = parseFloat(document.getElementById("inp-wht-percent").value) || 0;
-
-        // WHT คิดจากยอดก่อน VAT
-        const wht = sub * (percent / 100);
-        const net = grand - wht;
-
-        const whtEl = document.getElementById("sum-wht");
-        const netEl = document.getElementById("sum-net");
-
-        if (whtEl) whtEl.innerText = wht.toLocaleString(undefined,{minimumFractionDigits:2});
-        if (netEl) netEl.innerText = net.toLocaleString(undefined,{minimumFractionDigits:2});
-    };
-
-    // ===== 4. Trigger คำนวณเมื่อเปลี่ยน % =====
-    document.addEventListener("input", function(e){
-        if (e.target && e.target.id === "inp-wht-percent") {
-            calculate();
+        try {
+            const raw = await callGemini(prompt, systemPrompt, true);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                    items = parsed.map(it => ({
+                        desc: it.desc || '',
+                        qty: Number(it.qty) || 1,
+                        unit: it.unit || 'ชุด',
+                        price: Number(it.price) || 0
+                    }));
+                    renderItems();
+                }
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            overlay.style.display = 'none';
         }
-    });
+    }
 
-});
-document.addEventListener("DOMContentLoaded", function () {
+    async function aiEnhanceNotes() {
+        const notes = document.getElementById('inp-notes').value.trim();
+        const ref = document.getElementById('inp-doc-ref').value.trim();
+        if (!notes && !ref) return alert("ไม่มีข้อมูลให้ปรับปรุง");
 
-    const originalCalculate = window.calculate;
+        const overlay = document.getElementById('loading');
+        overlay.style.display = 'flex';
 
-    window.calculate = function () {
+        const prompt = `ปรับปรุงหมายเหตุให้เป็นทางการ กระชับ ชัดเจน เป็นข้อความภาษาไทย เหมาะกับเอกสารธุรกิจก่อสร้าง\nโครงการ: ${ref}\nข้อความเดิม:\n${notes || "(ว่าง)"}\n\nตัวอย่างที่ต้องการ: • ราคานี้รวม/ไม่รวม ... • การรับประกัน ... • ระยะเวลาดำเนินการ ...`;
 
-        // ให้ระบบเดิมคำนวณก่อน
-        originalCalculate();
-
-        if (currentDocType !== "tax-invoice") return;
-
-        const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
-        const hasVat = document.getElementById('inp-has-vat').checked;
-        const vat = hasVat ? sub * 0.07 : 0;
-        const grand = sub + vat;
-
-        const percent = parseFloat(document.getElementById("inp-wht-percent")?.value) || 0;
-
-        // WHT คิดจากยอดก่อน VAT
-        const wht = sub * (percent / 100);
-        const net = grand - wht;
-
-        // อัปเดตแสดง WHT
-        const whtEl = document.getElementById("sum-wht");
-        if (whtEl) {
-            whtEl.innerText = wht.toLocaleString(undefined,{minimumFractionDigits:2});
+        try {
+            const improved = await callGemini(prompt, "คุณคือผู้เชี่ยวชาญด้านเอกสารธุรกิจก่อสร้าง เขียนให้สุภาพ เป็นทางการ");
+            if (improved) document.getElementById('inp-notes').value = improved;
+        } catch (e) {
+            console.error(e);
+        } finally {
+            overlay.style.display = 'none';
         }
+    }
 
-        // ⭐ ทำให้ยอดสุทธิเป็นยอดรวมสุดท้าย
-        const grandEl = document.getElementById("sum-grand");
-        const textEl = document.getElementById("sum-text");
+    async function aiAnalyzeDashboard() {
+        const panel = document.getElementById('ai-insight-panel');
+        const textEl = document.getElementById('ai-insight-text');
+        textEl.innerHTML = "กำลังวิเคราะห์...";
+        panel.classList.remove('hidden');
 
-        if (grandEl) {
-            grandEl.innerText = net.toLocaleString(undefined,{minimumFractionDigits:2});
+        const summary = docList.slice(0, 20).map(d => 
+            `${d.type.toUpperCase()} ${d.id} : ${d.customer} - ฿${parseFloat(d.total||0).toLocaleString()}`
+        ).join('\n');
+
+        const prompt = `วิเคราะห์ข้อมูลเอกสารล่าสุดสั้น ๆ เป็นภาษาไทย โดยดูแนวโน้มยอดขาย/จัดซื้อ ปัญหาที่อาจเกิด และคำแนะนำ:\n${summary}`;
+
+        try {
+            const insight = await callGemini(prompt, "คุณคือที่ปรึกษาธุรกิจก่อสร้าง วิเคราะห์ข้อมูลอย่างเป็นกลาง");
+            if (insight) textEl.innerText = insight;
+        } catch (e) {
+            textEl.innerText = "ไม่สามารถวิเคราะห์ได้ในขณะนี้";
         }
+    }
+	function printDocument() {
+    try {
+        // ซ่อนส่วนที่ไม่ต้องการพิมพ์ก่อน (ถ้ามี)
+        document.querySelectorAll('.no-print').forEach(el => {
+            el.style.display = 'none';
+        });
 
-        if (textEl) {
-            textEl.innerText = `(${thaiBaht(net)})`;
-        }
+        window.print();
 
-    };
-
-});
-
+        // คืนค่าการแสดงผลหลังพิมพ์ (optional)
+        setTimeout(() => {
+            document.querySelectorAll('.no-print').forEach(el => {
+                el.style.display = '';
+            });
+        }, 100);
+    } catch (err) {
+        console.error("เกิดข้อผิดพลาดตอนพิมพ์:", err);
+        alert("ไม่สามารถเปิดหน้าพิมพ์ได้ กรุณาลองกด Ctrl + P แทน");
+    }
+}
 </script>
 </body>
 </html>
