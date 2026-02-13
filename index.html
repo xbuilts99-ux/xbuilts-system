@@ -124,6 +124,27 @@
     </style>
 </head>
 <body>
+<!-- Login Screen -->
+    <div id="loginScreen" class="fixed inset-0 bg-slate-100 flex items-center justify-center z-[100]">
+        <div class="card p-8 max-w-sm w-full mx-4 shadow-2xl border-t-4 border-blue-600">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-slate-800">X BUILTS 99</h1>
+                <p class="text-slate-500 text-sm mt-2">กรุณาเข้าสู่ระบบเพื่อจัดการบัญชี</p>
+            </div>
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Username</label>
+                    <input type="text" id="username" class="w-full border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required autocomplete="username">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-slate-500 uppercase block mb-1">Password</label>
+                    <input type="password" id="password" class="w-full border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required autocomplete="current-password">
+                </div>
+                <div id="loginError" class="hidden text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95">เข้าสู่ระบบ</button>
+            </form>
+        </div>
+    </div>
 
 <div id="loading" class="loading-overlay flex-col gap-4">
     <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
@@ -149,11 +170,11 @@
                 <button onclick="switchDocType('po')" class="px-4 py-2 rounded-lg text-xs font-bold bg-blue-900/40 hover:bg-blue-800 transition whitespace-nowrap text-blue-300">ใบสั่งซื้อ (PO)</button>
                 <button onclick="switchDocType('pr')" class="px-4 py-2 rounded-lg text-xs font-bold bg-emerald-900/40 hover:bg-emerald-800 transition whitespace-nowrap text-emerald-300">ใบขอซื้อ (PR)</button>
                 <div class="flex items-center gap-3">
-                    <a href="https://account.xbuilts99.com" target="_blank" rel="noopener noreferrer"
+                    <a href="https://crm.xbuilts99.com" target="_blank" rel="noopener noreferrer"
                        class="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-4 py-2 rounded-xl text-sm font-bold transition">
                         <i data-lucide="calculator" class="w-4 h-4"></i> ทำบัญชี
                     </a>
-                    <a href="http://crm.xbuilts99.com" target="_blank" rel="noopener noreferrer"
+                    <a href="http://account.xbuilts99.com" target="_blank" rel="noopener noreferrer"
                        class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-xl text-sm font-bold transition">
                         <i data-lucide="users" class="w-4 h-4"></i> ข้อมูลลูกค้า
                     </a>
@@ -167,7 +188,14 @@
                 <button onclick="printDocument()" class="bg-white/10 hover:bg-white/20 p-2 rounded-xl transition">
                     <i data-lucide="printer" class="w-5 h-5"></i>
                 </button>
+				
             </div>
+			</div>
+                <div class="flex gap-4">
+       
+                    <button onclick="logout()" class="text-xs bg-red-50 text-red-600 border border-red-100 px-4 py-1.5 rounded-lg hover:bg-red-100 transition">ออกจากระบบ</button>
+                </div>
+			
         </div>
     </nav>
 
@@ -355,7 +383,44 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ-ombgXeE8JA61HII2z1JDSiV9egtCb4T-ewD23TyUceGoe2IKaAQAuFZvcQgAt2LXQ/exec";
+ // --- Security (Direct Comparison for Preview Reliability) ---
+        // Username: xbuilts
+        // Password: Thoon5247%
+        const _U = "xbuilts";
+        const _P = "Thoon5247%";
+
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxwNoDIQlJtyBm4Y8t_Ta7o7ncALFlPw61RFlEb6k8Sdsa1RM08Te4W8O1uPWnU5mrgXg/exec";
+        let allRawData = [];
+        let projects = JSON.parse(localStorage.getItem('xb_projects_v4') || '["โครงการ A", "โครงการ B"]');
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            
+            if (u === _U && p === _P) {
+                localStorage.setItem('xb_session', 'active');
+                initApp();
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+
+        function initApp() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            updateProjectOptions();
+            fetchData();
+        }
+
+        function logout() {
+            localStorage.removeItem('xb_session');
+            location.reload();
+        }
+
+   
+
+   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQ-ombgXeE8JA61HII2z1JDSiV9egtCb4T-ewD23TyUceGoe2IKaAQAuFZvcQgAt2LXQ/exec";
     
     let currentDocType = 'quotation';
     let items = [{ desc: '', qty: 1, unit: 'งาน', price: 0 }];
