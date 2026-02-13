@@ -1,1 +1,329 @@
-(function(){const _0x1a="https://script.google.com/macros/s/AKfycbxwNoDIQlJtyBm4Y8t_Ta7o7ncALFlPw61RFlEb6k8Sdsa1RM08Te4W8O1uPWnU5mrgXg/exec";let _0x2b=[];let _0x3c=JSON.parse(localStorage.getItem('xbuilts_projects_v3')||'["โครงการสร้างบ้าน A","ตกแต่งภายใน B"]');window.updateConnectionStatus=function(_0x4d){const _0x5e=document.getElementById('connectionStatus');if(_0x4d==='loading'){_0x5e.className='text-xs bg-yellow-50 text-yellow-600 px-4 py-1.5 rounded-full font-bold border border-yellow-200 loading-pulse';_0x5e.innerText='● กำลังอัปเดตข้อมูล...'}else if(_0x4d==='success'){_0x5e.className='text-xs bg-green-50 text-green-600 px-4 py-1.5 rounded-full font-bold border border-green-200';_0x5e.innerText='● เชื่อมต่อ Cloud สำเร็จ'}else{_0x5e.className='text-xs bg-red-50 text-red-600 px-4 py-1.5 rounded-full font-bold border border-red-200';_0x5e.innerText='● การเชื่อมต่อล้มเหลว'}};window.fetchData=async function(){updateConnectionStatus('loading');try{const _0x6f=await fetch(`${_0x1a}?t=${Date.now()}`);_0x2b=await _0x6f.json();processData(_0x2b);updateConnectionStatus('success')}catch(_0x7a){updateConnectionStatus('error');console.error(_0x7a)}};window.processData=function(_0x8b){if(!_0x8b||_0x8b.length<2){document.getElementById('transactionBody').innerHTML='<tr><td colspan="3" class="p-10 text-center text-slate-400">ยังไม่มีข้อมูล</td></tr>';return}const _0x9c=_0x8b.slice(1);const _0x1d=document.getElementById('projectFilter').value;let _0x2e={inc:0,exp:0,vat:0,wht:0};let _0x3f={},_0x4a={},_0x5b={};const _0x6c=document.getElementById('transactionBody');_0x6c.innerHTML='';_0x9c.slice().reverse().forEach(_0x7d=>{const [_0x8e,_0x9f,_0x10a,_0x11b,_0x12c,_0x13d,_0x14e,_0x15f,_0x16a,_0x17b]=_0x7d;const _0x18c=new Date(_0x9f);const _0x19d=`${_0x18c.getFullYear()}-${(_0x18c.getMonth()+1).toString().padStart(2,'0')}`;const _0x20e=parseFloat(_0x17b)||0;const _0x21f=parseFloat(_0x14e)||0;const _0x22a=parseFloat(_0x15f)||0;const _0x23b=parseFloat(_0x16a)||0;if(!_0x4a[_0x19d])_0x4a[_0x19d]={inc:0,exp:0};if(_0x10a==='income')_0x4a[_0x19d].inc+=_0x20e;else _0x4a[_0x19d].exp+=_0x20e;if(!_0x5b[_0x19d])_0x5b[_0x19d]={base:0,vat:0,wht:0};if(_0x10a==='expense'){_0x5b[_0x19d].base+=_0x21f;_0x5b[_0x19d].vat+=_0x22a;_0x5b[_0x19d].wht+=_0x23b}if(!_0x3f[_0x11b])_0x3f[_0x11b]={inc:0,exp:0};if(_0x10a==='income')_0x3f[_0x11b].inc+=_0x20e;else _0x3f[_0x11b].exp+=_0x20e;if(_0x1d==='all'||_0x11b===_0x1d){if(_0x10a==='income')_0x2e.inc+=_0x20e;else _0x2e.exp+=_0x20e;_0x2e.vat+=_0x22a;_0x2e.wht+=_0x23b;_0x6c.innerHTML+=`<tr class="hover:bg-slate-50 transition border-b border-slate-50"><td class="p-4 text-[10px] text-slate-400 leading-tight">${_0x18c.toLocaleDateString('th-TH')}<br>${_0x18c.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})}</td><td class="p-4"><div class="font-bold text-slate-700 truncate max-w-[120px]">${_0x11b}</div><div class="text-[10px] text-slate-400 font-bold uppercase">${_0x12c}</div></td><td class="p-4 text-right"><div class="font-bold ${_0x10a==='income'?'text-blue-600':'text-red-500'}">${_0x10a==='income'?'+':'-'} ฿${_0x20e.toLocaleString(undefined,{minimumFractionDigits:2})}</div>${_0x22a>0?`<div class="text-[9px] text-purple-400">VAT ฿${_0x22a.toFixed(2)}</div>`:''}</td></tr>`}});document.getElementById('totalIncome').innerText='฿'+_0x2e.inc.toLocaleString(undefined,{minimumFractionDigits:2});document.getElementById('totalExpense').innerText='฿'+_0x2e.exp.toLocaleString(undefined,{minimumFractionDigits:2});document.getElementById('netProfit').innerText='฿'+(_0x2e.inc-_0x2e.exp).toLocaleString(undefined,{minimumFractionDigits:2});document.getElementById('avgMargin').innerText=_0x2e.inc>0?(((_0x2e.inc-_0x2e.exp)/_0x2e.inc)*100).toFixed(1)+'%':'0%';renderROI(_0x3f);renderMonthly(_0x4a);renderTax(_0x2e);renderTaxMonthly(_0x5b)};window.renderROI=function(_0xa1){const _0xb2=document.getElementById('roiBody');_0xb2.innerHTML='';Object.entries(_0xa1).sort((_0xc3,_0xd4)=>_0xd4[1].inc-_0xc3[1].inc).forEach(([_0xe5,_0xf6])=>{const _0x11a=_0xf6.inc-_0xf6.exp;const _0x22b=_0xf6.exp>0?(_0x11a/_0xf6.exp*100):0;const _0x33c=_0xf6.inc>0?(_0x11a/_0xf6.inc*100):0;_0xb2.innerHTML+=`<tr><td class="p-4 font-bold text-slate-700">${_0xe5}</td><td class="p-4 text-right">฿${_0xf6.inc.toLocaleString()}</td><td class="p-4 text-right text-red-400">฿${_0xf6.exp.toLocaleString()}</td><td class="p-4 text-right ${_0x11a>=0?'text-green-600':'text-red-600'}">฿${_0x11a.toLocaleString()}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-[10px] ${_0x33c>=20?'bg-green-100 text-green-700':'bg-yellow-100 text-yellow-700'}">ROI: ${_0x22b.toFixed(1)}% / Margin: ${_0x33c.toFixed(1)}%</span></td></tr>`})};window.renderMonthly=function(_0x1a2){const _0x2b3=document.getElementById('monthlyBody');_0x2b3.innerHTML='';Object.entries(_0x1a2).sort((_0x3c4,_0x4d5)=>_0x4d5[0].localeCompare(_0x3c4[0])).forEach(([_0x5e6,_0x6f7])=>{const _0x7a8=_0x6f7.inc-_0x6f7.exp;const [_0x8b9,_0x9ca]=_0x5e6.split('-');const _0x10d=new Date(_0x8b9,_0x9ca-1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});_0x2b3.innerHTML+=`<tr><td class="p-4 text-slate-600">${_0x10d}</td><td class="p-4 text-right text-blue-600">฿${_0x6f7.inc.toLocaleString()}</td><td class="p-4 text-right text-red-400">฿${_0x6f7.exp.toLocaleString()}</td><td class="p-4 text-right font-bold ${_0x7a8>=0?'text-slate-700':'text-red-600'}">฿${_0x7a8.toLocaleString()}</td></tr>`})};window.renderTaxMonthly=function(_0x11a){const _0x22b=document.getElementById('taxMonthlyBody');_0x22b.innerHTML='';Object.entries(_0x11a).sort((_0x33c,_0x44d)=>_0x44d[0].localeCompare(_0x33c[0])).forEach(([_0x55e,_0x66f])=>{const [_0x77a,_0x88b]=_0x55e.split('-');const _0x99c=new Date(_0x77a,_0x88b-1).toLocaleDateString('th-TH',{month:'long',year:'numeric'});_0x22b.innerHTML+=`<tr class="border-b border-slate-50"><td class="p-4 text-slate-700 font-bold">${_0x99c}</td><td class="p-4 text-right text-slate-500 font-medium">฿${_0x66f.base.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td class="p-4 text-right text-blue-600 font-bold">฿${_0x66f.vat.toLocaleString(undefined,{minimumFractionDigits:2})}</td><td class="p-4 text-right text-purple-600 font-bold">฿${_0x66f.wht.toLocaleString(undefined,{minimumFractionDigits:2})}</td></tr>`})};window.renderTax=function(_0x1a){const _0x2b=document.getElementById('taxContent');_0x2b.innerHTML=`<div class="bg-blue-50 p-6 rounded-2xl border border-blue-100"><h4 class="text-blue-800 font-bold mb-2">🛍️ ภาษีซื้อสะสม (VAT)</h4><p class="text-2xl font-black text-blue-700">฿${_0x1a.vat.toLocaleString(undefined,{minimumFractionDigits:2})}</p></div><div class="bg-purple-50 p-6 rounded-2xl border border-purple-100"><h4 class="text-purple-800 font-bold mb-2">✂️ หัก ณ ที่จ่ายสะสม (WHT)</h4><p class="text-2xl font-black text-purple-700">฿${_0x1a.wht.toLocaleString(undefined,{minimumFractionDigits:2})}</p></div><div class="bg-slate-50 p-6 rounded-2xl border border-slate-200"><h4 class="text-slate-800 font-bold mb-2">📈 ภาษีที่ประหยัดได้ (นิติฯ)</h4><p class="text-xl font-bold text-slate-600">฿${(_0x1a.exp*0.2).toLocaleString(undefined,{minimumFractionDigits:0})}</p><p class="text-[10px] text-slate-400 italic">* คำนวณจากค่าใช้จ่ายฐานภาษี 20%</p></div>`};document.getElementById('accountForm').addEventListener('submit',async(_0x11a)=>{_0x11a.preventDefault();const _0x22b=document.getElementById('submitBtn');_0x22b.disabled=true;_0x22b.innerText='⌛ กำลังบันทึก...';const _0x33c=calculateTax();const _0x44d={type:document.getElementById('type').value,project:document.getElementById('projectSelect').value,category:document.getElementById('category').value,description:document.getElementById('description').value,amount:_0x33c.amount,vat:_0x33c.vat,wht:_0x33c.wht,net:_0x33c.net};try{await fetch(_0x1a,{method:'POST',mode:'no-cors',body:JSON.stringify(_0x44d)});document.getElementById('accountForm').reset();calculateTax();alert('บันทึกสำเร็จ!');setTimeout(fetchData,1000)}catch(_0x55e){alert("เกิดข้อผิดพลาด: "+_0x55e.message)}finally{_0x22b.disabled=false;_0x22b.innerText='บันทึกข้อมูล' textContent}});window.calculateTax=function(){const _0x1a=parseFloat(document.getElementById('amount').value)||0;const _0x2b=document.getElementById('hasVat').checked;const _0x3c=parseFloat(document.getElementById('whtRate').value)||0;const _0x4d=_0x2b?_0x1a*0.07:0;const _0x5e=_0x1a*(_0x3c/100);const _0x6f=_0x1a+_0x4d-_0x5e;document.getElementById('displayVatText').innerText=_0x4d.toLocaleString(undefined,{minimumFractionDigits:2});document.getElementById('displayNet').innerText=_0x6f.toLocaleString(undefined,{minimumFractionDigits:2});return{amount:_0x1a,vat:_0x4d,wht:_0x5e,net:_0x6f}};window.switchTab=function(_0x1a){['dashboard','analysis','tax'].forEach(_0x2b=>{document.getElementById('view-'+_0x2b).classList.toggle('hidden',_0x2b!==_0x1a);document.getElementById('tab-'+_0x2b).className=_0x2b===_0x1a?'pb-2 font-bold nav-active whitespace-nowrap transition':'pb-2 font-bold text-slate-400 hover:text-slate-600 whitespace-nowrap transition'})};window.updateProjectOptions=function(){const _0x1a=['projectSelect','projectFilter'];_0x1a.forEach(_0x2b=>{const _0x3c=document.getElementById(_0x2b);const _0x4d=_0x3c.value;_0x3c.innerHTML=_0x2b==='projectFilter'?'<option value="all">📁 ทุกโครงการ</option>':'<option value="" disabled selected>-- เลือกโครงการ --</option>';_0x3c.sort().forEach(_0x5e=>_0x3c.innerHTML+=`<option value="${_0x5e}">${_0x5e}</option>`);_0x3c.value=_0x4d})};window.manageProjects=function(){const _0x1a=document.getElementById('projectList');_0x1a.innerHTML='';_0x3c.forEach((_0x2b,_0x3d)=>{_0x1a.innerHTML+=`<div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100"><span class="text-sm font-medium text-slate-700">${_0x2b}</span><button onclick="removeProject(${_0x3d})" class="text-red-400 hover:text-red-600 px-2">ลบ</button></div>`});document.getElementById('projectModal').classList.remove('hidden')};window.addProject=function(){const _0x1a=document.getElementById('newProjectName').value.trim();if(_0x1a&&!_0x3c.includes(_0x1a)){_0x3c.push(_0x1a);localStorage.setItem('xbuilts_projects_v3',JSON.stringify(_0x3c));document.getElementById('newProjectName').value='';updateProjectOptions();manageProjects()}};window.removeProject=function(_0x1a){if(confirm('ลบโครงการ?')){_0x3c.splice(_0x1a,1);localStorage.setItem('xbuilts_projects_v3',JSON.stringify(_0x3c));updateProjectOptions();manageProjects()}};window.closeProjectModal=function(){document.getElementById('projectModal').classList.add('hidden')};window.onload=()=>{updateProjectOptions();fetchData()}})();
+(function() {
+    // 🔗 URL ของ Google Apps Script (ตรวจสอบให้แน่ใจว่าลงท้ายด้วย /exec)
+    const API_URL = "https://script.google.com/macros/s/AKfycbxwNoDIQlJtyBm4Y8t_Ta7o7ncALFlPw61RFlEb6k8Sdsa1RM08Te4W8O1uPWnU5mrgXg/exec";
+
+    let allRawData = [];
+    let projects = JSON.parse(localStorage.getItem('xbuilts_projects_v3') || '["โครงการสร้างบ้าน A","ตกแต่งภายใน B"]');
+
+    // 🖥️ อัปเดตสถานะการเชื่อมต่อบน UI
+    window.updateConnectionStatus = function(status, message = '') {
+        const el = document.getElementById('connectionStatus');
+        if (!el) return;
+        
+        if (status === 'loading') {
+            el.className = 'text-xs bg-yellow-50 text-yellow-600 px-4 py-1.5 rounded-full font-bold border border-yellow-200 loading-pulse';
+            el.innerText = '● ' + (message || 'กำลังดึงข้อมูล...');
+        } else if (status === 'success') {
+            el.className = 'text-xs bg-green-50 text-green-600 px-4 py-1.5 rounded-full font-bold border border-green-200';
+            el.innerText = '● เชื่อมต่อ Cloud สำเร็จ';
+        } else {
+            el.className = 'text-xs bg-red-50 text-red-600 px-4 py-1.5 rounded-full font-bold border border-red-200';
+            el.innerText = '● ' + (message || 'เชื่อมต่อล้มเหลว');
+        }
+    };
+
+    // 📥 ฟังก์ชันดึงข้อมูล (GET)
+    window.fetchData = async function() {
+        updateConnectionStatus('loading', 'กำลังดึงข้อมูล...');
+        try {
+            // เพิ่ม Cache Buster เพื่อป้องกันข้อมูลเก่าค้าง
+            const fetchUrl = `${API_URL}?t=${new Date().getTime()}`;
+            
+            const response = await fetch(fetchUrl, {
+                method: "GET",
+                mode: "cors", // ต้องเป็น cors เพื่ออ่านข้อมูล JSON
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data && Array.isArray(data)) {
+                window.allRawData = data; 
+                window.processData(data);
+                updateConnectionStatus('success');
+            } else {
+                throw new Error('โครงสร้างข้อมูลไม่ถูกต้อง');
+            }
+
+        } catch (error) {
+            console.error("Connection Detailed Error:", error);
+            // ตรวจสอบว่าเป็นปัญหา CORS หรือไม่
+            if (error.message.includes('Failed to fetch')) {
+                updateConnectionStatus('error', 'ติดปัญหา CORS/URL ผิด');
+            } else {
+                updateConnectionStatus('error', error.message);
+            }
+        }
+    };
+
+    // 📊 ฟังก์ชันประมวลผลข้อมูล (ปรับให้รองรับข้อมูลว่าง)
+    window.processData = function(data) {
+        const container = document.getElementById('transactionBody');
+        const sourceData = data || window.allRawData;
+        
+        if (!container) return;
+        
+        if (!sourceData || sourceData.length < 2) {
+            container.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-slate-400 font-medium">ไม่พบข้อมูลในระบบ Cloud</td></tr>';
+            return;
+        }
+
+        const rows = sourceData.slice(1); // ตัดหัวตาราง (Header) ออก
+        const filter = document.getElementById('projectFilter').value;
+        
+        let stats = { income: 0, expense: 0, vat: 0, wht: 0 };
+        let projectSummary = {}, monthlySummary = {}, taxMonthlySummary = {};
+
+        container.innerHTML = '';
+
+        // แสดงผลจากใหม่ไปเก่า
+        [...rows].reverse().forEach(item => {
+            // โครงสร้าง: [ID, Date, Type, Project, Category, Desc, Base, Vat, Wht, Total]
+            const [id, date, type, proj, cat, desc, base, vat, wht, total] = item;
+            
+            const dateObj = new Date(date);
+            const monthKey = `${dateObj.getFullYear()}-${(dateObj.getMonth() + 1).toString().padStart(2, '0')}`;
+            
+            const valTotal = parseFloat(total) || 0;
+            const valBase = parseFloat(base) || 0;
+            const valVat = parseFloat(vat) || 0;
+            const valWht = parseFloat(wht) || 0;
+
+            // รวมยอดรายเดือน
+            if (!monthlySummary[monthKey]) monthlySummary[monthKey] = { inc: 0, exp: 0 };
+            if (type === 'income') monthlySummary[monthKey].inc += valTotal;
+            else monthlySummary[monthKey].exp += valTotal;
+
+            // รวมยอดภาษี
+            if (!taxMonthlySummary[monthKey]) taxMonthlySummary[monthKey] = { base: 0, vat: 0, wht: 0 };
+            if (type === 'expense') {
+                taxMonthlySummary[monthKey].base += valBase;
+                taxMonthlySummary[monthKey].vat += valVat;
+                taxMonthlySummary[monthKey].wht += valWht;
+            }
+
+            // รวมยอดรายโครงการ
+            if (!projectSummary[proj]) projectSummary[proj] = { inc: 0, exp: 0 };
+            if (type === 'income') projectSummary[proj].inc += valTotal;
+            else projectSummary[proj].exp += valTotal;
+
+            // Filter ข้อมูลลงตาราง
+            if (filter === 'all' || proj === filter) {
+                if (type === 'income') stats.income += valTotal;
+                else stats.expense += valTotal;
+                
+                stats.vat += valVat;
+                stats.wht += valWht;
+
+                container.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                        <td class="p-4 text-[10px] text-slate-400 leading-tight">
+                            ${dateObj.toLocaleDateString('th-TH')}<br>
+                            ${dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        <td class="p-4">
+                            <div class="font-bold text-slate-700 truncate max-w-[120px]">${proj}</div>
+                            <div class="text-[10px] text-slate-400 font-bold uppercase">${cat}</div>
+                        </td>
+                        <td class="p-4 text-right">
+                            <div class="font-bold ${type === 'income' ? 'text-blue-600' : 'text-red-500'}">
+                                ${type === 'income' ? '+' : '-'} ฿${valTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </div>
+                            ${valVat > 0 ? `<div class="text-[9px] text-purple-400">VAT ฿${valVat.toFixed(2)}</div>` : ''}
+                        </td>
+                    </tr>`;
+            }
+        });
+
+        // อัปเดตตัวเลขหลัก
+        document.getElementById('totalIncome').innerText = '฿' + stats.income.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        document.getElementById('totalExpense').innerText = '฿' + stats.expense.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        document.getElementById('netProfit').innerText = '฿' + (stats.income - stats.expense).toLocaleString(undefined, { minimumFractionDigits: 2 });
+        document.getElementById('avgMargin').innerText = stats.income > 0 ? (((stats.income - stats.expense) / stats.income) * 100).toFixed(1) + '%' : '0%';
+
+        window.renderROI(projectSummary);
+        window.renderMonthly(monthlySummary);
+        window.renderTax(stats);
+        window.renderTaxMonthly(taxMonthlySummary);
+    };
+
+    // 🎨 ฟังก์ชันช่วย Render (ROI, รายเดือน, ภาษี)
+    window.renderROI = (map) => {
+        const body = document.getElementById('roiBody');
+        if (!body) return;
+        body.innerHTML = Object.entries(map).sort((a, b) => b[1].inc - a[1].inc).map(([name, val]) => {
+            const profit = val.inc - val.exp;
+            const margin = val.inc > 0 ? (profit / val.inc * 100) : 0;
+            return `<tr><td class="p-4 font-bold text-slate-700">${name}</td><td class="p-4 text-right">฿${val.inc.toLocaleString()}</td><td class="p-4 text-right text-red-400">฿${val.exp.toLocaleString()}</td><td class="p-4 text-right ${profit >= 0 ? 'text-green-600' : 'text-red-600'}">฿${profit.toLocaleString()}</td><td class="p-4 text-center"><span class="px-2 py-1 rounded-full text-[10px] ${margin >= 20 ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">Margin: ${margin.toFixed(1)}%</span></td></tr>`;
+        }).join('');
+    };
+
+    window.renderMonthly = (map) => {
+        const body = document.getElementById('monthlyBody');
+        if (!body) return;
+        body.innerHTML = Object.entries(map).sort((a, b) => b[0].localeCompare(a[0])).map(([key, val]) => {
+            const [y, m] = key.split('-');
+            const label = new Date(y, m - 1).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+            return `<tr><td class="p-4 text-slate-600">${label}</td><td class="p-4 text-right text-blue-600">฿${val.inc.toLocaleString()}</td><td class="p-4 text-right text-red-400">฿${val.exp.toLocaleString()}</td><td class="p-4 text-right font-bold">฿${(val.inc - val.exp).toLocaleString()}</td></tr>`;
+        }).join('');
+    };
+
+    window.renderTaxMonthly = (map) => {
+        const body = document.getElementById('taxMonthlyBody');
+        if (!body) return;
+        body.innerHTML = Object.entries(map).sort((a, b) => b[0].localeCompare(a[0])).map(([key, val]) => {
+            const [y, m] = key.split('-');
+            const label = new Date(y, m - 1).toLocaleDateString('th-TH', { month: 'long', year: 'numeric' });
+            return `<tr class="border-b border-slate-50"><td class="p-4 text-slate-700 font-bold">${label}</td><td class="p-4 text-right text-slate-500">฿${val.base.toLocaleString()}</td><td class="p-4 text-right text-blue-600 font-bold">฿${val.vat.toLocaleString()}</td><td class="p-4 text-right text-purple-600 font-bold">฿${val.wht.toLocaleString()}</td></tr>`;
+        }).join('');
+    };
+
+    window.renderTax = (stats) => {
+        const el = document.getElementById('taxContent');
+        if (!el) return;
+        el.innerHTML = `
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <h4 class="text-blue-800 font-bold mb-2">🛍️ ภาษีซื้อสะสม (VAT)</h4>
+                <p class="text-2xl font-black text-blue-700">฿${stats.vat.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            </div>
+            <div class="bg-purple-50 p-6 rounded-2xl border border-purple-100">
+                <h4 class="text-purple-800 font-bold mb-2">✂️ หัก ณ ที่จ่ายสะสม (WHT)</h4>
+                <p class="text-2xl font-black text-purple-700">฿${stats.wht.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+            </div>
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                <h4 class="text-slate-800 font-bold mb-2">📈 ภาษีประหยัดได้ (นิติฯ)</h4>
+                <p class="text-xl font-bold text-slate-600">฿${(stats.expense * 0.2).toLocaleString()}</p>
+            </div>`;
+    };
+
+    // 📤 บันทึกข้อมูล (POST)
+    const setupForm = () => {
+        const form = document.getElementById('accountForm');
+        if (!form) return;
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = '⌛ กำลังส่งข้อมูล...';
+
+            const tx = window.calculateTax();
+            const payload = {
+                type: document.getElementById('type').value,
+                project: document.getElementById('projectSelect').value,
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                amount: tx.amount,
+                vat: tx.vat,
+                wht: tx.wht,
+                net: tx.net
+            };
+
+            try {
+                // สำหรับ Google Apps Script การใช้ no-cors ใน POST คือวิธีที่เสถียรที่สุด
+                await fetch(API_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                alert('บันทึกสำเร็จ! ข้อมูลจะปรากฏหลังจาก Cloud Sync (ประมาณ 2-3 วินาที)');
+                form.reset();
+                window.calculateTax();
+                setTimeout(window.fetchData, 2000);
+            } catch (err) {
+                alert("บันทึกไม่สำเร็จ: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'บันทึกข้อมูล';
+            }
+        });
+    };
+
+    // ฟังก์ชันอื่นๆ ที่ต้องใช้ใน HTML
+    window.calculateTax = function() {
+        const base = parseFloat(document.getElementById('amount').value) || 0;
+        const vat = document.getElementById('hasVat').checked ? base * 0.07 : 0;
+        const whtRate = parseFloat(document.getElementById('whtRate').value) || 0;
+        const wht = base * (whtRate / 100);
+        const net = base + vat - wht;
+        
+        const vatEl = document.getElementById('displayVatText');
+        const netEl = document.getElementById('displayNet');
+        if (vatEl) vatEl.innerText = vat.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        if (netEl) netEl.innerText = net.toLocaleString(undefined, { minimumFractionDigits: 2 });
+        
+        return { amount: base, vat: vat, wht: wht, net: net };
+    };
+
+    window.switchTab = function(tabName) {
+        ['dashboard', 'analysis', 'tax'].forEach(id => {
+            const view = document.getElementById('view-' + id);
+            const tabBtn = document.getElementById('tab-' + id);
+            if (view) view.classList.toggle('hidden', id !== tabName);
+            if (tabBtn) tabBtn.className = id === tabName ? 
+                'pb-2 font-bold nav-active whitespace-nowrap transition' : 
+                'pb-2 font-bold text-slate-400 hover:text-slate-600 whitespace-nowrap transition';
+        });
+    };
+
+    window.updateProjectOptions = function() {
+        ['projectSelect', 'projectFilter'].forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const current = el.value;
+            el.innerHTML = id === 'projectFilter' ? '<option value="all">📁 ทุกโครงการ</option>' : '<option value="" disabled selected>-- เลือกโครงการ --</option>';
+            projects.sort().forEach(p => el.innerHTML += `<option value="${p}">${p}</option>`);
+            el.value = current || (id === 'projectFilter' ? 'all' : el.value);
+        });
+    };
+
+    window.manageProjects = function() {
+        const list = document.getElementById('projectList');
+        if (!list) return;
+        list.innerHTML = projects.map((p, i) => `
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-sm font-medium text-slate-700">${p}</span>
+                <button onclick="removeProject(${i})" class="text-red-400 hover:text-red-600 px-2 font-bold">ลบ</button>
+            </div>`).join('');
+        document.getElementById('projectModal').classList.remove('hidden');
+    };
+
+    window.addProject = function() {
+        const n = document.getElementById('newProjectName').value.trim();
+        if (n && !projects.includes(n)) {
+            projects.push(n);
+            localStorage.setItem('xbuilts_projects_v3', JSON.stringify(projects));
+            document.getElementById('newProjectName').value = '';
+            window.updateProjectOptions();
+            window.manageProjects();
+        }
+    };
+
+    window.removeProject = function(i) {
+        if (confirm('ยืนยันการลบโครงการ?')) {
+            projects.splice(i, 1);
+            localStorage.setItem('xbuilts_projects_v3', JSON.stringify(projects));
+            window.updateProjectOptions();
+            window.manageProjects();
+        }
+    };
+
+    window.closeProjectModal = function() {
+        document.getElementById('projectModal').classList.add('hidden');
+    };
+
+    // 🚀 เมื่อโหลดหน้าเว็บ
+    window.addEventListener('load', () => {
+        window.updateProjectOptions();
+        setupForm();
+        window.fetchData();
+    });
+})();
