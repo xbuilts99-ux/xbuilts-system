@@ -515,7 +515,8 @@
                 <td class="py-1"><input type="number" step="any" oninput="updateItem(${i}, 'qty', this.value)" value="${item.qty}" class="w-full text-center bg-transparent"></td>
                 <td class="py-1"><input type="text" oninput="updateItem(${i}, 'unit', this.value)" value="${item.unit}" class="w-full text-center bg-transparent text-slate-400"></td>
                 <td class="py-1"><input type="number" step="any" oninput="updateItem(${i}, 'price', this.value)" value="${item.price}" class="w-full text-right font-bold bg-transparent"></td>
-                <td class="text-right font-bold pt-3 pr-2 align-top">${(item.qty * item.price).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                <td id="row-total-${i}" class="text-right font-bold pt-3 pr-2 align-top">${((Number(item.qty)||0)*(Number(item.price)||0))
+    .toLocaleString(undefined,{minimumFractionDigits:2})}</td>
                 <td class=" no-print pt-3 text-center align-top">
                    <button onclick="removeItem(${i})" class="text-slate-200 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </td>
@@ -579,9 +580,28 @@
     }
 
     function updateItem(i, field, val) {
-        items[i][field] = (field === 'qty' || field === 'price') ? parseFloat(val) || 0 : val;
-        calculate();
+
+    if (field === 'qty' || field === 'price') {
+        const num = Number(val);
+        items[i][field] = isNaN(num) ? 0 : num;
+    } else {
+        items[i][field] = val;
     }
+
+    // ⭐ อัปเดตเฉพาะผลรวมของแถวนั้น
+    const rowTotal = document.getElementById(`row-total-${i}`);
+    if (rowTotal) {
+        const total =
+            (Number(items[i].qty) || 0) *
+            (Number(items[i].price) || 0);
+
+        rowTotal.innerText =
+            total.toLocaleString(undefined, { minimumFractionDigits: 2 });
+    }
+
+    calculate(); // อัปเดตรวมด้านล่าง
+}
+
 
     function calculate() {
         const sub = items.reduce((s, x) => s + (x.qty * x.price), 0);
@@ -930,6 +950,9 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('loginScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
 }
+
+
+
 
 });
 
