@@ -33,12 +33,12 @@
                     <input type="password" id="password" class="w-full border border-slate-300 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all" required autocomplete="current-password">
                 </div>
                 <div id="loginError" class="hidden text-red-500 text-xs font-bold text-center bg-red-50 py-2 rounded-lg">❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95">เข้าสู่ระบบ</button>
+                <button type="submit" id="loginBtn" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95">เข้าสู่ระบบ</button>
             </form>
         </div>
     </div>
 
-    <!-- Application Dashboard -->
+    <!-- Application Dashboard (Main) -->
     <div id="mainApp" class="max-w-7xl mx-auto hidden">
         <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -144,44 +144,66 @@
     </div>
 
     <script>
-        // --- Security (Direct Comparison for Preview Reliability) ---
-        // Username: xbuilts
-        // Password: Thoon5247%
-        const _U = "xbuilts";
-        const _P = "Thoon5247%";
+        /**
+         * AUTH v4 - Reliable Check
+         * Username: xbuilts
+         * Password: Thoon5247%
+         */
+        const _v1 = "eGJ1aWx0cw=="; // b64 xbuilts
+        const _v2 = "VGhvb241MjQ3JQ=="; // b64 Thoon5247%
+
+        function checkAuth(u, p) {
+            try {
+                // ตัดช่องว่างและทำให้ตัวเล็กทั้งหมดสำหรับ Username
+                const cleanU = u.trim().toLowerCase();
+                const cleanP = p.trim();
+                return atob(_v1) === cleanU && atob(_v2) === cleanP;
+            } catch(e) { return false; }
+        }
 
         const scriptURL = "https://script.google.com/macros/s/AKfycbxwNoDIQlJtyBm4Y8t_Ta7o7ncALFlPw61RFlEb6k8Sdsa1RM08Te4W8O1uPWnU5mrgXg/exec";
+        const SESSION_KEY = 'xb_login_status';
         let allRawData = [];
         let projects = JSON.parse(localStorage.getItem('xb_projects_v4') || '["โครงการ A", "โครงการ B"]');
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const u = document.getElementById('username').value.trim();
-            const p = document.getElementById('password').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const err = document.getElementById('loginError');
             
-            if (u === _U && p === _P) {
-                localStorage.setItem('xb_session', 'active');
+            btn.innerText = "Checking...";
+            btn.disabled = true;
+            err.classList.add('hidden');
+
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            
+            if (checkAuth(u, p)) {
+                localStorage.setItem(SESSION_KEY, 'verified');
                 initApp();
             } else {
-                document.getElementById('loginError').classList.remove('hidden');
+                err.classList.remove('hidden');
+                btn.innerText = "เข้าสู่ระบบ";
+                btn.disabled = false;
             }
         });
 
         function initApp() {
             document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainApp').classList.remove('hidden');
             updateProjectOptions();
             fetchData();
         }
 
         function logout() {
-            localStorage.removeItem('xb_session');
+            localStorage.removeItem(SESSION_KEY);
             location.reload();
         }
 
         async function fetchData() {
             const status = document.getElementById('connectionStatus');
-            status.innerText = "● กำลังโหลด...";
+            status.innerText = "● กำลังโหลดข้อมูล...";
             status.className = "text-xs bg-yellow-50 text-yellow-600 px-4 py-1.5 rounded-full font-bold loading-pulse";
             try {
                 const res = await fetch(`${scriptURL}?t=${Date.now()}`);
@@ -190,7 +212,7 @@
                 status.innerText = "● เชื่อมต่อ Cloud สำเร็จ";
                 status.className = "text-xs bg-green-50 text-green-600 px-4 py-1.5 rounded-full font-bold border border-green-200";
             } catch (e) {
-                status.innerText = "● การเชื่อมต่อล้มเหลว";
+                status.innerText = "● เชื่อมต่อล้มเหลว";
                 status.className = "text-xs bg-red-50 text-red-600 px-4 py-1.5 rounded-full font-bold border border-red-200";
             }
         }
@@ -321,7 +343,9 @@
         function closeProjectModal() { document.getElementById('projectModal').classList.add('hidden'); }
 
         window.onload = () => {
-            if(localStorage.getItem('xb_session') === 'active') initApp();
+            if(localStorage.getItem(SESSION_KEY) === 'verified') {
+                initApp();
+            }
         };
     </script>
 </body>
