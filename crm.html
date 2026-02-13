@@ -2,338 +2,559 @@
 <html lang="th">
  <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>X-BUILT 99 CRM - Fixed</title>
+  <title>X-BUILT 99 CRM</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&amp;display=swap" rel="stylesheet">
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
-    * { font-family: 'Sarabun', sans-serif; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.2s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .modal { display: none; }
-    .modal.active { display: flex; }
-    .loading-overlay { display: none; }
-    .loading-overlay.active { display: flex; }
-  </style>
+        * {
+            font-family: 'Sarabun', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            font-family: 'Sarabun', 'Segoe UI', sans-serif;
+            color: #1e293b;
+        }
+        
+        .tab-content { 
+            display: none; 
+        }
+        
+        .tab-content.active { 
+            display: block; 
+        }
+        
+        .modal { 
+            display: none; 
+        }
+        
+        .modal.active { 
+            display: flex; 
+        }
+        
+        .loading-overlay { 
+            display: none; 
+        }
+        
+        .loading-overlay.active { 
+            display: flex; 
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
  <body class="bg-slate-50 text-slate-800">
-
-  <!-- Loading Overlay -->
-  <div id="loading" class="loading-overlay fixed inset-0 bg-white/80 z-[100] items-center justify-center flex-col gap-4 backdrop-blur-sm">
-    <div class="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-    <p id="loading-text" class="text-slate-600 font-bold">กำลังประมวลผล...</p>
+  <div id="loading" class="loading-overlay fixed inset-0 bg-white/70 z-50 items-center justify-center flex-col gap-3">
+   <div class="w-10 h-10 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+   <p class="text-sm font-bold text-slate-600">กำลังประมวลผล...</p>
   </div>
-
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col shadow-xl">
-      <div class="p-6 border-b border-slate-800 flex items-center gap-3">
-        <div class="w-10 h-10 bg-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">X</div>
-        <div>
-          <h1 class="text-white font-bold">X-BUILT 99</h1>
-          <p class="text-[10px] text-slate-400">Construction Management</p>
-        </div>
+  <div class="flex min-h-screen"><!-- Sidebar -->
+   <aside class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 hidden md:flex flex-col">
+    <div class="p-6 border-b border-slate-800">
+     <div class="flex items-center gap-3 mb-2">
+      <div class="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+       X
       </div>
-      <nav class="flex-1 p-4 space-y-2">
-        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-orange-600 text-white shadow-lg shadow-orange-900/20">
-          <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>แผงควบคุม</span>
-        </button>
-        <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800">
-          <i data-lucide="users" class="w-5 h-5"></i><span>ฐานข้อมูลลูกค้า</span>
-        </button>
-        <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800">
-          <i data-lucide="hard-hat" class="w-5 h-5"></i><span>โครงการ</span>
-        </button>
-      </nav>
-    </aside>
-
-    <!-- Main -->
-    <main class="flex-1 h-screen overflow-y-auto p-6">
-      <header class="flex justify-between items-end mb-8">
-        <div>
-          <h2 id="page-title" class="text-3xl font-bold text-slate-800">ภาพรวมบริษัท</h2>
-          <p class="text-slate-500 text-sm">ยินดีต้อนรับสู่ระบบ CRM</p>
-        </div>
-        <button onclick="openModal(false)" id="add-btn" class="hidden bg-slate-900 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-orange-600 transition-all flex items-center gap-2">
-          <i data-lucide="plus" class="w-5 h-5"></i> เพิ่มข้อมูล
-        </button>
-      </header>
-
-      <!-- Dashboard -->
-      <div id="dashboard" class="tab-content active">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p class="text-slate-500 text-sm">จำนวนโครงการ</p>
-            <h3 class="text-3xl font-bold" id="dash-projects">0</h3>
-          </div>
-          <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p class="text-slate-500 text-sm">จำนวนลูกค้า</p>
-            <h3 class="text-3xl font-bold" id="dash-customers">0</h3>
-          </div>
-          <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-            <p class="text-slate-500 text-sm">มูลค่าโครงการรวม</p>
-            <h3 class="text-3xl font-bold text-orange-600" id="dash-value">0</h3>
-          </div>
-        </div>
+      <div>
+       <h1 class="text-white font-bold text-lg leading-tight">X-BUILT 99</h1>
+       <p class="text-xs text-slate-400">Construction CRM</p>
       </div>
-
-      <!-- Customers -->
-      <div id="customers" class="tab-content">
-        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th class="p-4 font-bold">ชื่อลูกค้า/บริษัท</th>
-                <th class="p-4 font-bold">การติดต่อ</th>
-                <th class="p-4 font-bold">ที่อยู่</th>
-                <th class="p-4 font-bold text-center">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="list-customers" class="divide-y divide-slate-50"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Projects -->
-      <div id="projects" class="tab-content">
-        <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 border-b border-slate-100">
-              <tr>
-                <th class="p-4 font-bold">ชื่อโครงการ</th>
-                <th class="p-4 font-bold">สถานะ</th>
-                <th class="p-4 font-bold text-right">มูลค่า</th>
-                <th class="p-4 font-bold text-center">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="list-projects" class="divide-y divide-slate-50"></tbody>
-          </table>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Modal -->
-  <div id="modal" class="modal fixed inset-0 bg-slate-900/50 items-center justify-center p-4 z-[90]">
-    <div class="bg-white w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl">
-      <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-        <h3 id="modal-title" class="font-bold text-lg">เพิ่มข้อมูล</h3>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-red-500"><i data-lucide="x"></i></button>
-      </div>
-      <div id="modal-body" class="p-6 space-y-4 max-h-[70vh] overflow-y-auto"></div>
-      <div class="p-4 bg-slate-50 border-t flex justify-end gap-3">
-        <button onclick="closeModal()" class="px-4 py-2 text-slate-600">ยกเลิก</button>
-        <button onclick="saveData()" class="px-6 py-2 bg-slate-900 text-white rounded-lg font-bold hover:bg-orange-600 transition-all">บันทึก</button>
-      </div>
+     </div>
     </div>
+    <nav class="flex-1 p-4 space-y-2"><button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-orange-600 text-white">
+      <svg data-lucide="layout-dashboard" class="w-5 h-5"></svg><span>แผงควบคุม</span> </button> <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
+      <svg data-lucide="users" class="w-5 h-5"></svg><span>ฐานข้อมูลลูกค้า</span> </button> <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
+      <svg data-lucide="hard-hat" class="w-5 h-5"></svg><span>โครงการก่อสร้าง</span> </button>
+    </nav>
+    <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
+     <p>บริษัท เอกซ์ บิลท์ส เก้าเก้า</p>
+     <p class="mt-1">ชุมแพ ขอนแก่น</p>
+    </div>
+   </aside><!-- Main Content -->
+   <main class="flex-1 overflow-y-auto">
+    <div class="p-6 max-w-7xl mx-auto">
+     <header class="flex justify-between items-end mb-8">
+      <div>
+       <h2 id="page-title" class="text-3xl font-bold text-slate-800">ภาพรวมบริษัท</h2>
+       <p class="text-slate-500 text-sm mt-1">บริษัท เอกซ์ บิลท์ส เก้าเก้า จำกัด</p>
+      </div>
+      <div class="flex gap-2">
+       <div id="search-container" class="hidden relative"><input type="text" id="global-search" oninput="handleSearch()" placeholder="ค้นหา..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
+        <svg data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></svg>
+       </div><button onclick="openModal(false)" id="add-btn" class="hidden bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 flex items-center gap-2">
+        <svg data-lucide="plus" class="w-4 h-4"></svg><span>เพิ่มข้อมูล</span> </button>
+      </div>
+     </header><!-- Dashboard Tab -->
+     <div id="dashboard" class="tab-content active space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500">
+        <p class="text-sm text-slate-500 mb-1">โครงการทั้งหมด</p>
+        <h3 class="text-3xl font-bold text-blue-600" id="stat-total-projects">0</h3>
+       </div>
+       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
+        <p class="text-sm text-slate-500 mb-1">มูลค่างานรวม</p>
+        <h3 class="text-2xl font-bold text-emerald-600" id="stat-total-value">0 บาท</h3>
+       </div>
+       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-orange-500">
+        <p class="text-sm text-slate-500 mb-1">กำลังดำเนินการ</p>
+        <h3 class="text-3xl font-bold text-orange-600" id="stat-active-projects">0</h3>
+       </div>
+       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500">
+        <p class="text-sm text-slate-500 mb-1">รอเสนอราคา</p>
+        <h3 class="text-3xl font-bold text-amber-600" id="stat-pending-quotes">0</h3>
+       </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+       <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h3 class="font-bold text-lg mb-4">โครงการล่าสุด</h3>
+        <div class="overflow-x-auto">
+         <table class="w-full text-sm text-left">
+          <thead class="bg-slate-50 text-slate-600 border-b">
+           <tr>
+            <th class="p-3">ชื่อโครงการ</th>
+            <th class="p-3 text-center">สถานะ</th>
+            <th class="p-3 text-right">มูลค่า</th>
+           </tr>
+          </thead>
+          <tbody id="recent-projects-list" class="divide-y divide-slate-100"></tbody>
+         </table>
+        </div>
+       </div>
+       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+        <h3 class="font-bold text-lg mb-4">ลูกค้าล่าสุด</h3>
+        <div id="recent-customers-list" class="space-y-3"></div>
+       </div>
+      </div>
+     </div><!-- Customers Tab -->
+     <div id="customers" class="tab-content space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+       <table class="w-full text-sm text-left">
+        <thead class="bg-slate-50 text-slate-600 border-b">
+         <tr>
+          <th class="p-4">ชื่อ - นามสกุล</th>
+          <th class="p-4">เบอร์โทร</th>
+          <th class="p-4">Line ID</th>
+          <th class="p-4">ที่อยู่</th>
+          <th class="p-4 text-center">จัดการ</th>
+         </tr>
+        </thead>
+        <tbody id="full-customers-list" class="divide-y divide-slate-100"></tbody>
+       </table>
+      </div>
+     </div><!-- Projects Tab -->
+     <div id="projects" class="tab-content space-y-4">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+       <table class="w-full text-sm text-left">
+        <thead class="bg-slate-50 text-slate-600 border-b">
+         <tr>
+          <th class="p-4">ชื่อโครงการ</th>
+          <th class="p-4">ลูกค้า</th>
+          <th class="p-4 text-center">สถานะ</th>
+          <th class="p-4 text-right">มูลค่า</th>
+          <th class="p-4 text-center">จัดการ</th>
+         </tr>
+        </thead>
+        <tbody id="full-projects-list" class="divide-y divide-slate-100"></tbody>
+       </table>
+      </div>
+     </div>
+    </div>
+   </main>
+  </div><!-- Modal Form -->
+  <div id="modal" class="modal fixed inset-0 bg-black/50 items-center justify-center p-4 z-50 backdrop-blur-sm">
+   <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+    <h3 id="modal-title" class="text-xl font-bold mb-4 text-slate-800">เพิ่มข้อมูล</h3>
+    <div id="modal-form-content" class="space-y-4"></div>
+    <div class="flex gap-3 mt-6 justify-end sticky bottom-0 bg-white pt-4 border-t"><button onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-slate-50">ยกเลิก</button> <button onclick="saveData()" class="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold">บันทึกข้อมูล</button>
+    </div>
+   </div>
   </div>
-
   <script>
-    // URL สำหรับ Google Apps Script
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwhCjwyY0Wzx0GngrzIhw34L2vbVLmSvaQjVi9Sven8L7Z8ml_DJ5_7agN4Aq8gdSl-Iw/exec';
-    
-    let db = { customers: [], projects: [] };
-    let currentTab = 'dashboard';
-    let editingId = null;
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyzg6pHzj7AIUyMw5Ml9BMPmPdVz15HE59eQ01smeN7MQRjGeQXvjNWhCWx9oE6fw-5fg/exec';
+        let customers = [];
+        let projects = [];
+        let editingId = null;
+        let currentActiveTab = 'dashboard';
 
-    function showLoading(show, text = 'กำลังโหลด...') {
-      const l = document.getElementById('loading');
-      document.getElementById('loading-text').innerText = text;
-      l.classList.toggle('active', show);
-    }
-
-    async function loadData() {
-      showLoading(true, 'กำลังโหลดข้อมูลจาก Google Sheets...');
-      try {
-        const res = await fetch(`${SCRIPT_URL}?action=getData`);
-        const data = await res.json();
-        
-        db.customers = (data.customers || []).map(r => ({
-          id: String(r[0]), name: String(r[1]), phone: String(r[2]), line: String(r[3]),
-          email: String(r[4]), taxid: String(r[5]), address: String(r[6]), contact: String(r[7]), file: String(r[8])
-        }));
-        
-        db.projects = (data.projects || []).map(r => ({
-          id: String(r[0]), customerId: String(r[1]), name: String(r[2]), status: String(r[3]), value: parseFloat(r[4]) || 0
-        }));
-
-        render();
-      } catch (e) {
-        console.error(e);
-      } finally {
-        showLoading(false);
-      }
-    }
-
-    // ฟังก์ชันส่งข้อมูลไปยัง Google Apps Script (สำคัญมาก: แก้ไขให้รับส่งข้อมูลได้แม่นยำขึ้น)
-    async function apiCall(action, payload) {
-        showLoading(true, 'กำลังส่งข้อมูลไปยังเซิร์ฟเวอร์...');
-        try {
-            // ใช้ URLSearchParams สำหรับการลบและการรับส่งข้อมูลผ่าน GET/POST
-            // Google Apps Script รับ POST ในโหมด no-cors ได้ดีถ้าส่งเป็น JSON string ในเนื้อหาเดียว
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', 
-                cache: 'no-cache',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action, payload })
-            });
-
-            // เนื่องด้วย no-cors เราจะไม่สามารถอ่าน response.json() ได้
-            // จึงใช้วิธีรอ 2 วินาทีแล้วโหลดข้อมูลใหม่แทน
-            setTimeout(loadData, 2000);
-            return true;
-        } catch (e) {
-            console.error("API Error:", e);
-            alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-            return false;
-        } finally {
-            setTimeout(() => showLoading(false), 2000);
-        }
-    }
-
-    function render() {
-      // Dashboard
-      document.getElementById('dash-projects').innerText = db.projects.length;
-      document.getElementById('dash-customers').innerText = db.customers.length;
-      document.getElementById('dash-value').innerText = db.projects.reduce((s,p)=>s+p.value, 0).toLocaleString();
-
-      // Customers
-      const cList = document.getElementById('list-customers');
-      cList.innerHTML = db.customers.map(c => `
-        <tr class="hover:bg-slate-50">
-          <td class="p-4">
-            <div class="font-bold text-slate-800">${c.name}</div>
-            <div class="text-xs text-slate-400">ID: ${c.id}</div>
-          </td>
-          <td class="p-4 text-sm">${c.phone}<br><span class="text-green-600">${c.line}</span></td>
-          <td class="p-4 text-sm text-slate-500 max-w-[200px] truncate">${c.address}</td>
-          <td class="p-4 text-center">
-            <div class="flex justify-center gap-2">
-              <button onclick="editCustomer('${c.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-              <button onclick="confirmDelete('customer', '${c.id}', '${c.name}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-
-      // Projects
-      const pList = document.getElementById('list-projects');
-      pList.innerHTML = db.projects.map(p => `
-        <tr class="hover:bg-slate-50">
-          <td class="p-4 font-bold text-slate-800">${p.name}</td>
-          <td class="p-4 text-center"><span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">${p.status}</span></td>
-          <td class="p-4 text-right font-mono font-bold">${p.value.toLocaleString()}</td>
-          <td class="p-4 text-center">
-            <div class="flex justify-center gap-2">
-              <button onclick="editProject('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-              <button onclick="confirmDelete('project', '${p.id}', '${p.name}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
-
-      lucide.createIcons();
-    }
-
-    // --- DELETE LOGIC (หัวใจสำคัญของคำถาม) ---
-    function confirmDelete(type, id, name) {
-        // 1. ถามยืนยันก่อนเสมอ
-        if (confirm(`⚠️ ยืนยันการลบข้อมูล?\n\nคุณกำลังจะลบ "${name}" ออกจากระบบถาวร\n(ไม่สามารถกู้คืนได้)`)) {
-            
-            if (type === 'customer') {
-                // ตรวจสอบว่าลูกค้ามีโครงการผูกอยู่ไหม
-                const hasProj = db.projects.some(p => p.customerId === id);
-                if (hasProj) {
-                    alert('❌ ไม่สามารถลบได้: ลูกค้ารายนี้มีโครงการค้างอยู่ในระบบ กรุณาลบโครงการออกก่อน');
-                    return;
-                }
-                apiCall('deleteCustomer', { id: id });
+        function showLoading(show) {
+            const loader = document.getElementById('loading');
+            if (show) {
+                loader.classList.add('active');
             } else {
-                apiCall('deleteProject', { id: id });
+                loader.classList.remove('active');
             }
         }
-    }
 
-    function switchTab(t) {
-      currentTab = t;
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.getElementById(t).classList.add('active');
-      
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-orange-600', 'text-white'));
-      document.getElementById(`nav-${t}`).classList.add('bg-orange-600', 'text-white');
-
-      document.getElementById('page-title').innerText = t === 'dashboard' ? 'ภาพรวมบริษัท' : (t === 'customers' ? 'ฐานข้อมูลลูกค้า' : 'โครงการก่อสร้าง');
-      document.getElementById('add-btn').classList.toggle('hidden', t === 'dashboard');
-    }
-
-    function openModal(isEdit) {
-      document.getElementById('modal').classList.add('active');
-      const body = document.getElementById('modal-body');
-      
-      if (currentTab === 'customers') {
-        const d = isEdit ? db.customers.find(c => c.id === editingId) : {};
-        body.innerHTML = `
-          <input id="f-name" value="${d.name||''}" placeholder="ชื่อลูกค้า/บริษัท" class="w-full p-3 border rounded-lg">
-          <input id="f-phone" value="${d.phone||''}" placeholder="เบอร์โทรศัพท์" class="w-full p-3 border rounded-lg">
-          <input id="f-line" value="${d.line||''}" placeholder="Line ID" class="w-full p-3 border rounded-lg">
-          <textarea id="f-address" placeholder="ที่อยู่" class="w-full p-3 border rounded-lg h-24">${d.address||''}</textarea>
-        `;
-      } else {
-        const d = isEdit ? db.projects.find(p => p.id === editingId) : {};
-        body.innerHTML = `
-          <input id="f-pname" value="${d.name||''}" placeholder="ชื่อโครงการ" class="w-full p-3 border rounded-lg">
-          <select id="f-pcust" class="w-full p-3 border rounded-lg">
-            <option value="">-- เลือกลูกค้า --</option>
-            ${db.customers.map(c => `<option value="${c.id}" ${d.customerId===c.id?'selected':''}>${c.name}</option>`).join('')}
-          </select>
-          <input id="f-pvalue" type="number" value="${d.value||''}" placeholder="มูลค่า" class="w-full p-3 border rounded-lg">
-          <select id="f-pstatus" class="w-full p-3 border rounded-lg">
-            <option ${d.status==='New Lead'?'selected':''}>New Lead</option>
-            <option ${d.status==='Quotation'?'selected':''}>Quotation</option>
-            <option ${d.status==='Construction'?'selected':''}>Construction</option>
-            <option ${d.status==='Completed'?'selected':''}>Completed</option>
-          </select>
-        `;
-      }
-    }
-
-    function closeModal() {
-      document.getElementById('modal').classList.remove('active');
-      editingId = null;
-    }
-
-    async function saveData() {
-        if (currentTab === 'customers') {
-            const p = {
-                id: editingId || 'C' + Date.now(),
-                name: document.getElementById('f-name').value,
-                phone: document.getElementById('f-phone').value,
-                line: document.getElementById('f-line').value,
-                address: document.getElementById('f-address').value
-            };
-            if (!p.name) return alert('ระบุชื่อ');
-            await apiCall(editingId ? 'editCustomer' : 'addCustomer', p);
-        } else {
-            const p = {
-                id: editingId || 'P' + Date.now(),
-                customerId: document.getElementById('f-pcust').value,
-                name: document.getElementById('f-pname').value,
-                value: parseFloat(document.getElementById('f-pvalue').value),
-                status: document.getElementById('f-pstatus').value
-            };
-            if (!p.name || !p.customerId) return alert('ระบุข้อมูลให้ครบ');
-            await apiCall(editingId ? 'editProject' : 'addProject', p);
+        // โหลดข้อมูลจาก Google Sheet
+        async function loadData() {
+            showLoading(true);
+            try {
+                const response = await fetch(SCRIPT_URL + '?action=getData');
+                const data = await response.json();
+                
+                if (data.customers && Array.isArray(data.customers)) {
+                    customers = data.customers.map(row => ({
+                        id: String(row[0] || ''),
+                        name: String(row[1] || ''),
+                        phone: String(row[2] || ''),
+                        line: String(row[3] || ''),
+                        email: String(row[4] || ''),
+                        taxid: String(row[5] || ''),
+                        address: String(row[6] || '')
+                    }));
+                }
+                
+                if (data.projects && Array.isArray(data.projects)) {
+                    projects = data.projects.map(row => ({
+                        id: String(row[0] || ''),
+                        customerId: String(row[1] || ''),
+                        name: String(row[2] || ''),
+                        status: String(row[3] || ''),
+                        value: parseFloat(row[4]) || 0
+                    }));
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            } finally {
+                showLoading(false);
+                renderView();
+                lucide.createIcons();
+            }
         }
-        closeModal();
-    }
 
-    function editCustomer(id) { editingId = id; openModal(true); }
-    function editProject(id) { editingId = id; openModal(true); }
+        async function saveData() {
+            let payload = {};
+            let isEdit = editingId !== null;
 
-    window.onload = loadData;
-  </script>
- </body>
+            if (currentActiveTab === 'customers') {
+                const name = document.getElementById('f-name')?.value || '';
+                const phone = document.getElementById('f-phone')?.value || '';
+                const line = document.getElementById('f-line')?.value || '';
+                const email = document.getElementById('f-email')?.value || '';
+                const taxid = document.getElementById('f-taxid')?.value || '';
+                const address = document.getElementById('f-address')?.value || '';
+
+                if (!name.trim() || !address.trim()) {
+                    alert('กรุณากรอกชื่อและที่อยู่');
+                    return;
+                }
+
+                payload = {
+                    id: editingId || 'C-' + Date.now().toString().slice(-6),
+                    name: name.trim(),
+                    phone: phone.trim(),
+                    line: line.trim(),
+                    email: email.trim(),
+                    taxid: taxid.trim(),
+                    address: address.trim()
+                };
+
+                await sendToGoogleSheets(isEdit ? 'editCustomer' : 'addCustomer', payload);
+            } else if (currentActiveTab === 'projects') {
+                const name = document.getElementById('f-pname')?.value || '';
+                const customerId = document.getElementById('f-pcust')?.value || '';
+                const value = parseFloat(document.getElementById('f-pvalue')?.value) || 0;
+                const status = document.getElementById('f-pstatus')?.value || '';
+
+                if (!name.trim() || !customerId || value <= 0) {
+                    alert('กรุณากรอกข้อมูลโครงการให้ครบถ้วน');
+                    return;
+                }
+
+                payload = {
+                    id: editingId || 'P-' + Date.now().toString().slice(-6),
+                    customerId: customerId,
+                    name: name.trim(),
+                    status: status,
+                    value: value
+                };
+
+                await sendToGoogleSheets(isEdit ? 'editProject' : 'addProject', payload);
+            }
+
+            closeModal();
+            setTimeout(() => loadData(), 1500);
+        }
+
+        async function sendToGoogleSheets(action, payload) {
+            showLoading(true);
+            try {
+                await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action, payload })
+                });
+            } catch (error) {
+                console.error('Error sending data:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function switchTab(tabId) {
+            currentActiveTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-orange-600', 'text-white');
+            });
+            document.getElementById('nav-' + tabId).classList.add('bg-orange-600', 'text-white');
+
+            const addBtn = document.getElementById('add-btn');
+            const searchBox = document.getElementById('search-container');
+            const pageTitle = document.getElementById('page-title');
+
+            if (tabId === 'dashboard') {
+                pageTitle.textContent = 'ภาพรวมบริษัท';
+                addBtn.classList.add('hidden');
+                searchBox.classList.add('hidden');
+            } else if (tabId === 'customers') {
+                pageTitle.textContent = 'ทะเบียนลูกค้า';
+                addBtn.classList.remove('hidden');
+                searchBox.classList.remove('hidden');
+            } else if (tabId === 'projects') {
+                pageTitle.textContent = 'จัดการโครงการ';
+                addBtn.classList.remove('hidden');
+                searchBox.classList.remove('hidden');
+            }
+            
+            renderView();
+        }
+
+        function getStatusClass(status) {
+            const styles = {
+                'New Lead': 'bg-blue-100 text-blue-700',
+                'Quotation': 'bg-amber-100 text-amber-700',
+                'Construction': 'bg-orange-100 text-orange-700',
+                'Completed': 'bg-emerald-100 text-emerald-700',
+            };
+            return styles[status] || 'bg-slate-100 text-slate-600';
+        }
+
+        function renderView() {
+            if (currentActiveTab === 'dashboard') renderDashboard();
+            else if (currentActiveTab === 'customers') renderCustomers();
+            else if (currentActiveTab === 'projects') renderProjects();
+        }
+
+        function renderDashboard() {
+            const totalValue = projects.reduce((sum, p) => sum + (p.value || 0), 0);
+            
+            document.getElementById('stat-total-projects').textContent = projects.length;
+            document.getElementById('stat-total-value').textContent = totalValue.toLocaleString('th-TH') + ' บาท';
+            document.getElementById('stat-active-projects').textContent = projects.filter(p => p.status === 'Construction').length;
+            document.getElementById('stat-pending-quotes').textContent = projects.filter(p => p.status === 'Quotation').length;
+
+            const list = document.getElementById('recent-projects-list');
+            if (projects.length === 0) {
+                list.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">ยังไม่มีโครงการ</td></tr>';
+            } else {
+                list.innerHTML = projects.slice(-5).reverse().map(p => `
+                    <tr>
+                        <td class="p-3 font-medium text-slate-700">${p.name}</td>
+                        <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${getStatusClass(p.status)}">${p.status}</span></td>
+                        <td class="p-3 text-right font-mono text-slate-700">${(p.value || 0).toLocaleString('th-TH')}</td>
+                    </tr>
+                `).join('');
+            }
+
+            const cList = document.getElementById('recent-customers-list');
+            if (customers.length === 0) {
+                cList.innerHTML = '<p class="text-slate-400 text-center py-4">ยังไม่มีลูกค้า</p>';
+            } else {
+                cList.innerHTML = customers.slice(-5).reverse().map(c => `
+                    <div class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold flex-shrink-0">${(c.name || 'ไม่มีชื่อ')[0]}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-slate-800 truncate">${c.name || 'ไม่มีชื่อ'}</p>
+                            <p class="text-xs text-slate-500 truncate">${c.phone || '-'}</p>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderCustomers(data = customers) {
+            const list = document.getElementById('full-customers-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">ยังไม่มีข้อมูลลูกค้า</td></tr>';
+                return;
+            }
+
+            list.innerHTML = data.map(c => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 font-semibold text-slate-700">${c.name || '-'}</td>
+                    <td class="p-4 text-slate-600">${c.phone || '-'}</td>
+                    <td class="p-4 text-slate-600">${c.line || '-'}</td>
+                    <td class="p-4 text-slate-500 max-w-xs truncate">${c.address || '-'}</td>
+                    <td class="p-4 text-center">
+                        <div class="flex gap-2 justify-center">
+                            <button onclick="editCustomer('${c.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                                <svg data-lucide="edit-3" class="w-4 h-4"></svg>
+                            </button>
+                            <button onclick="deleteCustomer('${c.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
+                                <svg data-lucide="trash-2" class="w-4 h-4"></svg>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderProjects(data = projects) {
+            const list = document.getElementById('full-projects-list');
+            if (data.length === 0) {
+                list.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">ยังไม่มีโครงการ</td></tr>';
+                return;
+            }
+
+            list.innerHTML = data.map(p => {
+                const cust = customers.find(c => c.id === p.customerId);
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4 font-semibold text-slate-700">${p.name || '-'}</td>
+                        <td class="p-4 text-slate-600">${cust?.name || '-'}</td>
+                        <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${getStatusClass(p.status)}">${p.status}</span></td>
+                        <td class="p-4 text-right font-mono font-bold text-slate-700">${(p.value || 0).toLocaleString('th-TH')}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex gap-2 justify-center">
+                                <button onclick="editProject('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
+                                    <svg data-lucide="edit-3" class="w-4 h-4"></svg>
+                                </button>
+                                <button onclick="deleteProject('${p.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
+                                    <svg data-lucide="trash-2" class="w-4 h-4"></svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function handleSearch() {
+            const term = document.getElementById('global-search').value.toLowerCase();
+            if (currentActiveTab === 'customers') {
+                const filtered = customers.filter(c =>
+                    (c.name || '').toLowerCase().includes(term) ||
+                    (c.phone || '').includes(term) ||
+                    (c.id || '').toLowerCase().includes(term)
+                );
+                renderCustomers(filtered);
+            } else if (currentActiveTab === 'projects') {
+                const filtered = projects.filter(p =>
+                    (p.name || '').toLowerCase().includes(term) ||
+                    (p.id || '').toLowerCase().includes(term)
+                );
+                renderProjects(filtered);
+            }
+            lucide.createIcons();
+        }
+
+        function openModal(isEdit = false) {
+            const modal = document.getElementById('modal');
+            const content = document.getElementById('modal-form-content');
+            const title = document.getElementById('modal-title');
+
+            modal.classList.add('active');
+
+            if (currentActiveTab === 'customers') {
+                const data = isEdit ? customers.find(c => c.id === editingId) : {};
+                title.textContent = isEdit ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่';
+                content.innerHTML = `
+                    <input type="text" id="f-name" value="${data.name || ''}" placeholder="ชื่อ-นามสกุล" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="f-phone" value="${data.phone || ''}" placeholder="เบอร์โทร" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                        <input type="text" id="f-line" value="${data.line || ''}" placeholder="Line ID" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="text" id="f-taxid" value="${data.taxid || ''}" placeholder="เลขผู้เสียภาษี" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                        <input type="email" id="f-email" value="${data.email || ''}" placeholder="อีเมล" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                    </div>
+                    <textarea id="f-address" placeholder="ที่อยู่" class="w-full p-3 border border-slate-300 rounded-lg h-24 focus:ring-2 focus:ring-orange-500 outline-none" required>${data.address || ''}</textarea>
+                `;
+            } else if (currentActiveTab === 'projects') {
+                const data = isEdit ? projects.find(p => p.id === editingId) : {};
+                title.textContent = isEdit ? 'แก้ไขโครงการ' : 'สร้างโครงการใหม่';
+                let customerOptions = customers.map(c => `<option value="${c.id}" ${c.id === data.customerId ? 'selected' : ''}>${c.name}</option>`).join('');
+
+                content.innerHTML = `
+                    <input type="text" id="f-pname" value="${data.name || ''}" placeholder="ชื่อโครงการ" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                    <select id="f-pcust" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white" required>
+                        <option value="">-- เลือกลูกค้า --</option>
+                        ${customerOptions}
+                    </select>
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="f-pvalue" value="${data.value || ''}" placeholder="มูลค่าโครงการ" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                        <select id="f-pstatus" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white">
+                            <option value="New Lead" ${data.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
+                            <option value="Quotation" ${data.status === 'Quotation' ? 'selected' : ''}>Quotation</option>
+                            <option value="Construction" ${data.status === 'Construction' ? 'selected' : ''}>Construction</option>
+                            <option value="Completed" ${data.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </div>
+                `;
+            }
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            editingId = null;
+        }
+
+        function editCustomer(id) {
+            editingId = id;
+            openModal(true);
+        }
+
+        function editProject(id) {
+            editingId = id;
+            openModal(true);
+        }
+
+        async function deleteCustomer(id) {
+            if (confirm('คุณต้องการลบลูกค้านี้หรือไม่?')) {
+                customers = customers.filter(c => c.id !== id);
+                await sendToGoogleSheets('deleteCustomer', { id });
+                setTimeout(() => loadData(), 1000);
+            }
+        }
+
+        async function deleteProject(id) {
+            if (confirm('คุณต้องการลบโครงการนี้หรือไม่?')) {
+                projects = projects.filter(p => p.id !== id);
+                await sendToGoogleSheets('deleteProject', { id });
+                setTimeout(() => loadData(), 1000);
+            }
+        }
+
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('modal');
+            if (e.target === modal) closeModal();
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            lucide.createIcons();
+        });
+
+        // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                loadData();
+            });
+        } else {
+            loadData();
+        }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb2882fe3094b89',t:'MTc3MDYzMTM1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
