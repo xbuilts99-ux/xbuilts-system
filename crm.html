@@ -42,9 +42,6 @@
             display: flex; 
         }
     </style>
-  <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
-  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
  <body class="bg-slate-50 text-slate-800">
   <div id="loading" class="loading-overlay fixed inset-0 bg-white/70 z-50 items-center justify-center flex-col gap-3">
@@ -64,10 +61,19 @@
       </div>
      </div>
     </div>
-    <nav class="flex-1 p-4 space-y-2"><button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-orange-600 text-white">
-      <svg data-lucide="layout-dashboard" class="w-5 h-5"></svg><span>แผงควบคุม</span> </button> <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
-      <svg data-lucide="users" class="w-5 h-5"></svg><span>ฐานข้อมูลลูกค้า</span> </button> <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
-      <svg data-lucide="hard-hat" class="w-5 h-5"></svg><span>โครงการก่อสร้าง</span> </button>
+    <nav class="flex-1 p-4 space-y-2">
+      <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors bg-orange-600 text-white">
+      <i data-lucide="layout-dashboard" class="w-5 h-5"></i><span>แผงควบคุม</span> </button> 
+      <button onclick="switchTab('customers')" id="nav-customers" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
+      <i data-lucide="users" class="w-5 h-5"></i><span>ฐานข้อมูลลูกค้า</span> </button> 
+      <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors hover:bg-slate-800">
+      <i data-lucide="hard-hat" class="w-5 h-5"></i><span>โครงการก่อสร้าง</span> </button>
+      
+      <div class="pt-4 mt-4 border-t border-slate-800">
+        <a href="http://cost.xbuilts99.com" target="_blank" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600 hover:text-white transition-all">
+          <i data-lucide="file-text" class="w-5 h-5"></i><span>เปิดใบเสนอราคา</span>
+        </a>
+      </div>
     </nav>
     <div class="p-4 border-t border-slate-800 text-xs text-slate-500 text-center">
      <p>บริษัท เอกซ์ บิลท์ส เก้าเก้า</p>
@@ -83,31 +89,58 @@
       </div>
       <div class="flex gap-2">
        <div id="search-container" class="hidden relative"><input type="text" id="global-search" oninput="handleSearch()" placeholder="ค้นหา..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-orange-500 outline-none">
-        <svg data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></svg>
+        <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
        </div><button onclick="openModal(false)" id="add-btn" class="hidden bg-orange-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-orange-700 flex items-center gap-2">
-        <svg data-lucide="plus" class="w-4 h-4"></svg><span>เพิ่มข้อมูล</span> </button>
+        <i data-lucide="plus" class="w-4 h-4"></i><span>เพิ่มข้อมูล</span> </button>
       </div>
      </header><!-- Dashboard Tab -->
      <div id="dashboard" class="tab-content active space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-blue-500">
         <p class="text-sm text-slate-500 mb-1">โครงการทั้งหมด</p>
         <h3 class="text-3xl font-bold text-blue-600" id="stat-total-projects">0</h3>
        </div>
        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-emerald-500">
-        <p class="text-sm text-slate-500 mb-1">มูลค่างานรวม</p>
+        <p class="text-sm text-slate-500 mb-1">มูลค่างานรวม (ไม่รวม VAT)</p>
         <h3 class="text-2xl font-bold text-emerald-600" id="stat-total-value">0 บาท</h3>
+       </div>
+       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-indigo-500">
+        <p class="text-sm text-slate-500 mb-1">มูลค่างานรวม (รวม VAT 7%)</p>
+        <h3 class="text-2xl font-bold text-indigo-600" id="stat-total-vat">0 บาท</h3>
        </div>
        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-orange-500">
         <p class="text-sm text-slate-500 mb-1">กำลังดำเนินการ</p>
         <h3 class="text-3xl font-bold text-orange-600" id="stat-active-projects">0</h3>
        </div>
-       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 border-l-4 border-l-amber-500">
-        <p class="text-sm text-slate-500 mb-1">รอเสนอราคา</p>
-        <h3 class="text-3xl font-bold text-amber-600" id="stat-pending-quotes">0</h3>
-       </div>
       </div>
+
+      <!-- Main Tables -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+       <!-- Customer Full Details Table (Requested) -->
+       <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h3 class="font-bold text-lg text-slate-800">รายละเอียดลูกค้าทั้งหมด</h3>
+          <div class="text-xs text-slate-500">แสดงรายการล่าสุดด้านบน</div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-100 text-slate-600 border-b">
+              <tr>
+                <th class="p-4">ชื่อ - นามสกุล / บริษัท</th>
+                <th class="p-4">เบอร์โทรศัพท์</th>
+                <th class="p-4">Line ID</th>
+                <th class="p-4">เลขประจำตัวผู้เสียภาษี</th>
+                <th class="p-4">ที่อยู่</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-customers-list" class="divide-y divide-slate-100">
+              <!-- Content populated by JS -->
+            </tbody>
+          </table>
+        </div>
+       </div>
+
        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <h3 class="font-bold text-lg mb-4">โครงการล่าสุด</h3>
         <div class="overflow-x-auto">
@@ -116,16 +149,37 @@
            <tr>
             <th class="p-3">ชื่อโครงการ</th>
             <th class="p-3 text-center">สถานะ</th>
-            <th class="p-3 text-right">มูลค่า</th>
+            <th class="p-3 text-right">มูลค่า (ก่อน VAT)</th>
            </tr>
           </thead>
           <tbody id="recent-projects-list" class="divide-y divide-slate-100"></tbody>
          </table>
         </div>
        </div>
+
        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h3 class="font-bold text-lg mb-4">ลูกค้าล่าสุด</h3>
-        <div id="recent-customers-list" class="space-y-3"></div>
+        <h3 class="font-bold text-lg mb-4">เมนูทางลัด</h3>
+        <div class="space-y-3">
+          <button onclick="switchTab('customers'); openModal(false);" class="w-full p-4 flex items-center justify-between bg-orange-50 border border-orange-100 rounded-xl hover:bg-orange-100 transition-colors group">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-orange-500 rounded-lg text-white">
+                <i data-lucide="user-plus" class="w-5 h-5"></i>
+              </div>
+              <span class="font-semibold text-orange-900">เพิ่มลูกค้าใหม่</span>
+            </div>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-orange-400 group-hover:translate-x-1 transition-transform"></i>
+          </button>
+          
+          <a href="http://cost.xbuilts99.com" target="_blank" class="w-full p-4 flex items-center justify-between bg-emerald-50 border border-emerald-100 rounded-xl hover:bg-emerald-100 transition-colors group">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-emerald-500 rounded-lg text-white">
+                <i data-lucide="file-spreadsheet" class="w-5 h-5"></i>
+              </div>
+              <span class="font-semibold text-emerald-900">สร้างใบเสนอราคา</span>
+            </div>
+            <i data-lucide="external-link" class="w-5 h-5 text-emerald-400 group-hover:translate-x-1 transition-transform"></i>
+          </a>
+        </div>
        </div>
       </div>
      </div><!-- Customers Tab -->
@@ -166,7 +220,10 @@
   </div><!-- Modal Form -->
   <div id="modal" class="modal fixed inset-0 bg-black/50 items-center justify-center p-4 z-50 backdrop-blur-sm">
    <div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
-    <h3 id="modal-title" class="text-xl font-bold mb-4 text-slate-800">เพิ่มข้อมูล</h3>
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="modal-title" class="text-xl font-bold text-slate-800">เพิ่มข้อมูล</h3>
+      <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
     <div id="modal-form-content" class="space-y-4"></div>
     <div class="flex gap-3 mt-6 justify-end sticky bottom-0 bg-white pt-4 border-t"><button onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-slate-50">ยกเลิก</button> <button onclick="saveData()" class="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold">บันทึกข้อมูล</button>
     </div>
@@ -181,14 +238,10 @@
 
         function showLoading(show) {
             const loader = document.getElementById('loading');
-            if (show) {
-                loader.classList.add('active');
-            } else {
-                loader.classList.remove('active');
-            }
+            if (show) loader.classList.add('active');
+            else loader.classList.remove('active');
         }
 
-        // โหลดข้อมูลจาก Google Sheet
         async function loadData() {
             showLoading(true);
             try {
@@ -253,7 +306,7 @@
                 };
 
                 await sendToGoogleSheets(isEdit ? 'editCustomer' : 'addCustomer', payload);
-            } else if (currentActiveTab === 'projects') {
+            } else if (currentActiveTab === 'projects' || (currentActiveTab === 'dashboard' && editingId?.startsWith('P-'))) {
                 const name = document.getElementById('f-pname')?.value || '';
                 const customerId = document.getElementById('f-pcust')?.value || '';
                 const value = parseFloat(document.getElementById('f-pvalue')?.value) || 0;
@@ -285,9 +338,7 @@
                 await fetch(SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ action, payload })
                 });
             } catch (error) {
@@ -346,39 +397,45 @@
 
         function renderDashboard() {
             const totalValue = projects.reduce((sum, p) => sum + (p.value || 0), 0);
+            const totalVat = totalValue * 1.07;
             
             document.getElementById('stat-total-projects').textContent = projects.length;
             document.getElementById('stat-total-value').textContent = totalValue.toLocaleString('th-TH') + ' บาท';
+            document.getElementById('stat-total-vat').textContent = totalVat.toLocaleString('th-TH') + ' บาท';
             document.getElementById('stat-active-projects').textContent = projects.filter(p => p.status === 'Construction').length;
-            document.getElementById('stat-pending-quotes').textContent = projects.filter(p => p.status === 'Quotation').length;
 
-            const list = document.getElementById('recent-projects-list');
-            if (projects.length === 0) {
-                list.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-slate-400">ยังไม่มีโครงการ</td></tr>';
-            } else {
-                list.innerHTML = projects.slice(-5).reverse().map(p => `
+            // Render Recent Projects
+            const pList = document.getElementById('recent-projects-list');
+            pList.innerHTML = projects.length === 0 ? 
+                '<tr><td colspan="3" class="p-4 text-center text-slate-400">ยังไม่มีโครงการ</td></tr>' :
+                projects.slice(-5).reverse().map(p => `
                     <tr>
                         <td class="p-3 font-medium text-slate-700">${p.name}</td>
                         <td class="p-3 text-center"><span class="px-2 py-0.5 rounded-full text-xs font-bold ${getStatusClass(p.status)}">${p.status}</span></td>
                         <td class="p-3 text-right font-mono text-slate-700">${(p.value || 0).toLocaleString('th-TH')}</td>
                     </tr>
                 `).join('');
-            }
 
-            const cList = document.getElementById('recent-customers-list');
-            if (customers.length === 0) {
-                cList.innerHTML = '<p class="text-slate-400 text-center py-4">ยังไม่มีลูกค้า</p>';
-            } else {
-                cList.innerHTML = customers.slice(-5).reverse().map(c => `
-                    <div class="flex items-center gap-3 p-3 border border-slate-200 rounded-lg">
-                        <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold flex-shrink-0">${(c.name || 'ไม่มีชื่อ')[0]}</div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-slate-800 truncate">${c.name || 'ไม่มีชื่อ'}</p>
-                            <p class="text-xs text-slate-500 truncate">${c.phone || '-'}</p>
-                        </div>
-                    </div>
+            // Render Full Customer Details in Dashboard (Requested)
+            const dcList = document.getElementById('dashboard-customers-list');
+            dcList.innerHTML = customers.length === 0 ?
+                '<tr><td colspan="5" class="p-8 text-center text-slate-400">ยังไม่มีข้อมูลลูกค้าในระบบ</td></tr>' :
+                customers.slice().reverse().map(c => `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm">${(c.name || 'C')[0]}</div>
+                                <span class="font-bold text-slate-800">${c.name || '-'}</span>
+                            </div>
+                        </td>
+                        <td class="p-4 text-slate-600 font-medium">${c.phone || '-'}</td>
+                        <td class="p-4 text-slate-600">${c.line || '-'}</td>
+                        <td class="p-4 text-slate-500 font-mono text-xs">${c.taxid || '-'}</td>
+                        <td class="p-4 text-slate-500 max-w-xs truncate" title="${c.address}">${c.address || '-'}</td>
+                    </tr>
                 `).join('');
-            }
+            
+            lucide.createIcons();
         }
 
         function renderCustomers(data = customers) {
@@ -387,7 +444,6 @@
                 list.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">ยังไม่มีข้อมูลลูกค้า</td></tr>';
                 return;
             }
-
             list.innerHTML = data.map(c => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-4 font-semibold text-slate-700">${c.name || '-'}</td>
@@ -396,12 +452,8 @@
                     <td class="p-4 text-slate-500 max-w-xs truncate">${c.address || '-'}</td>
                     <td class="p-4 text-center">
                         <div class="flex gap-2 justify-center">
-                            <button onclick="editCustomer('${c.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
-                                <svg data-lucide="edit-3" class="w-4 h-4"></svg>
-                            </button>
-                            <button onclick="deleteCustomer('${c.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                <svg data-lucide="trash-2" class="w-4 h-4"></svg>
-                            </button>
+                            <button onclick="editCustomer('${c.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="deleteCustomer('${c.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -415,7 +467,6 @@
                 list.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">ยังไม่มีโครงการ</td></tr>';
                 return;
             }
-
             list.innerHTML = data.map(p => {
                 const cust = customers.find(c => c.id === p.customerId);
                 return `
@@ -426,12 +477,8 @@
                         <td class="p-4 text-right font-mono font-bold text-slate-700">${(p.value || 0).toLocaleString('th-TH')}</td>
                         <td class="p-4 text-center">
                             <div class="flex gap-2 justify-center">
-                                <button onclick="editProject('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition">
-                                    <svg data-lucide="edit-3" class="w-4 h-4"></svg>
-                                </button>
-                                <button onclick="deleteProject('${p.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition">
-                                    <svg data-lucide="trash-2" class="w-4 h-4"></svg>
-                                </button>
+                                <button onclick="editProject('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                                <button onclick="deleteProject('${p.id}')" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                             </div>
                         </td>
                     </tr>
@@ -443,49 +490,39 @@
         function handleSearch() {
             const term = document.getElementById('global-search').value.toLowerCase();
             if (currentActiveTab === 'customers') {
-                const filtered = customers.filter(c =>
-                    (c.name || '').toLowerCase().includes(term) ||
-                    (c.phone || '').includes(term) ||
-                    (c.id || '').toLowerCase().includes(term)
-                );
+                const filtered = customers.filter(c => (c.name || '').toLowerCase().includes(term) || (c.phone || '').includes(term));
                 renderCustomers(filtered);
             } else if (currentActiveTab === 'projects') {
-                const filtered = projects.filter(p =>
-                    (p.name || '').toLowerCase().includes(term) ||
-                    (p.id || '').toLowerCase().includes(term)
-                );
+                const filtered = projects.filter(p => (p.name || '').toLowerCase().includes(term));
                 renderProjects(filtered);
             }
-            lucide.createIcons();
         }
 
         function openModal(isEdit = false) {
             const modal = document.getElementById('modal');
             const content = document.getElementById('modal-form-content');
             const title = document.getElementById('modal-title');
-
             modal.classList.add('active');
 
             if (currentActiveTab === 'customers') {
                 const data = isEdit ? customers.find(c => c.id === editingId) : {};
                 title.textContent = isEdit ? 'แก้ไขข้อมูลลูกค้า' : 'เพิ่มลูกค้าใหม่';
                 content.innerHTML = `
-                    <input type="text" id="f-name" value="${data.name || ''}" placeholder="ชื่อ-นามสกุล" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                    <input type="text" id="f-name" value="${data.name || ''}" placeholder="ชื่อ-นามสกุล / บริษัท" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
                     <div class="grid grid-cols-2 gap-3">
                         <input type="text" id="f-phone" value="${data.phone || ''}" placeholder="เบอร์โทร" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                         <input type="text" id="f-line" value="${data.line || ''}" placeholder="Line ID" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                     </div>
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="text" id="f-taxid" value="${data.taxid || ''}" placeholder="เลขผู้เสียภาษี" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
+                        <input type="text" id="f-taxid" value="${data.taxid || ''}" placeholder="เลขประจำตัวผู้เสียภาษี" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                         <input type="email" id="f-email" value="${data.email || ''}" placeholder="อีเมล" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none">
                     </div>
-                    <textarea id="f-address" placeholder="ที่อยู่" class="w-full p-3 border border-slate-300 rounded-lg h-24 focus:ring-2 focus:ring-orange-500 outline-none" required>${data.address || ''}</textarea>
+                    <textarea id="f-address" placeholder="ที่อยู่ในการออกใบเสร็จ/ติดตั้ง" class="w-full p-3 border border-slate-300 rounded-lg h-24 focus:ring-2 focus:ring-orange-500 outline-none" required>${data.address || ''}</textarea>
                 `;
-            } else if (currentActiveTab === 'projects') {
+            } else if (currentActiveTab === 'projects' || (currentActiveTab === 'dashboard')) {
                 const data = isEdit ? projects.find(p => p.id === editingId) : {};
                 title.textContent = isEdit ? 'แก้ไขโครงการ' : 'สร้างโครงการใหม่';
                 let customerOptions = customers.map(c => `<option value="${c.id}" ${c.id === data.customerId ? 'selected' : ''}>${c.name}</option>`).join('');
-
                 content.innerHTML = `
                     <input type="text" id="f-pname" value="${data.name || ''}" placeholder="ชื่อโครงการ" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
                     <select id="f-pcust" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white" required>
@@ -493,7 +530,7 @@
                         ${customerOptions}
                     </select>
                     <div class="grid grid-cols-2 gap-3">
-                        <input type="number" id="f-pvalue" value="${data.value || ''}" placeholder="มูลค่าโครงการ" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
+                        <input type="number" id="f-pvalue" value="${data.value || ''}" placeholder="มูลค่าโครงการ (ก่อน VAT)" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none" required>
                         <select id="f-pstatus" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 outline-none bg-white">
                             <option value="New Lead" ${data.status === 'New Lead' ? 'selected' : ''}>New Lead</option>
                             <option value="Quotation" ${data.status === 'Quotation' ? 'selected' : ''}>Quotation</option>
@@ -511,19 +548,11 @@
             editingId = null;
         }
 
-        function editCustomer(id) {
-            editingId = id;
-            openModal(true);
-        }
-
-        function editProject(id) {
-            editingId = id;
-            openModal(true);
-        }
+        function editCustomer(id) { editingId = id; openModal(true); }
+        function editProject(id) { editingId = id; openModal(true); }
 
         async function deleteCustomer(id) {
-            if (confirm('คุณต้องการลบลูกค้านี้หรือไม่?')) {
-                customers = customers.filter(c => c.id !== id);
+            if (confirm('คุณต้องการลบลูกค้านี้หรือไม่? ข้อมูลโครงการที่เกี่ยวข้องอาจได้รับผลกระทบ')) {
                 await sendToGoogleSheets('deleteCustomer', { id });
                 setTimeout(() => loadData(), 1000);
             }
@@ -531,30 +560,18 @@
 
         async function deleteProject(id) {
             if (confirm('คุณต้องการลบโครงการนี้หรือไม่?')) {
-                projects = projects.filter(p => p.id !== id);
                 await sendToGoogleSheets('deleteProject', { id });
                 setTimeout(() => loadData(), 1000);
             }
         }
 
         window.addEventListener('click', (e) => {
-            const modal = document.getElementById('modal');
-            if (e.target === modal) closeModal();
+            if (e.target === document.getElementById('modal')) closeModal();
         });
 
         window.addEventListener('DOMContentLoaded', () => {
             loadData();
-            lucide.createIcons();
         });
-
-        // โหลดข้อมูลเมื่อหน้าเว็บโหลดเสร็จ
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                loadData();
-            });
-        } else {
-            loadData();
-        }
     </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cb2882fe3094b89',t:'MTc3MDYzMTM1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ </body>
 </html>
